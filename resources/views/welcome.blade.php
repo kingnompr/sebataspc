@@ -47,6 +47,15 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #3b4354;
         }
+        
+        /* Hide scrollbar for horizontal scroll */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-x-hidden antialiased selection:bg-primary selection:text-white">
@@ -279,7 +288,20 @@ updateSlider();
                     Lihat Semua <span class="material-symbols-outlined text-lg">arrow_forward</span>
 </a>
 </div>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+<!-- Horizontal Scroll Container -->
+<div class="relative">
+    <!-- Scroll Buttons -->
+    <button id="scroll-left" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-primary/80 hover:bg-primary text-white p-3 rounded-full shadow-lg transition-all opacity-0 pointer-events-none">
+        <span class="material-symbols-outlined">chevron_left</span>
+    </button>
+    <button id="scroll-right" class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-primary/80 hover:bg-primary text-white p-3 rounded-full shadow-lg transition-all">
+        <span class="material-symbols-outlined">chevron_right</span>
+    </button>
+    
+    <!-- Scrollable Product Grid -->
+    <div id="product-scroll" class="overflow-x-auto scrollbar-hide scroll-smooth pb-4">
+        <div class="flex gap-6" style="width: max-content;">
 @forelse($featuredProducts as $product)
     @php
         $image = $product->image;
@@ -288,7 +310,7 @@ updateSlider();
         $inWishlist = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
     @endphp
     
-<div class="group bg-card-dark border border-white/5 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+<div class="group bg-card-dark border border-white/5 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex-shrink-0" style="width: 280px;">
 <div class="relative w-full aspect-square bg-[#151921] p-6 flex items-center justify-center">
 <div class="absolute top-3 right-3 z-10">
 @auth
@@ -315,8 +337,8 @@ updateSlider();
 </a>
 @endauth
 </div>
-<a href="{{ route('products.show', $product->slug) }}">
-    <div class="w-full h-full bg-contain bg-center bg-no-repeat transition-transform duration-500 group-hover:scale-110" style="background-image: url('{{ $imageUrl }}');"></div>
+<a href="{{ route('products.show', $product->slug) }}" class="block w-full h-full">
+    <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" />
 </a>
 </div>
 <div class="p-4">
@@ -351,10 +373,12 @@ updateSlider();
 </div>
 </div>
 @empty
-<div class="col-span-full text-center py-12">
+<div class="w-full text-center py-12">
     <p class="text-slate-400">Belum ada produk tersedia</p>
 </div>
 @endforelse
+        </div>
+    </div>
 </div>
 </section>
 
@@ -427,5 +451,47 @@ function showToast(message, icon = 'check_circle') {
         toast.classList.remove('translate-y-0', 'opacity-100');
     }, 3000);
 }
+
+// Horizontal scroll for featured products
+document.addEventListener('DOMContentLoaded', function() {
+    const scrollContainer = document.getElementById('product-scroll');
+    const scrollLeftBtn = document.getElementById('scroll-left');
+    const scrollRightBtn = document.getElementById('scroll-right');
+    
+    if (!scrollContainer || !scrollLeftBtn || !scrollRightBtn) return;
+    
+    function updateScrollButtons() {
+        const scrollLeft = scrollContainer.scrollLeft;
+        const scrollWidth = scrollContainer.scrollWidth;
+        const clientWidth = scrollContainer.clientWidth;
+        
+        // Show/hide left button
+        if (scrollLeft > 0) {
+            scrollLeftBtn.classList.remove('opacity-0', 'pointer-events-none');
+        } else {
+            scrollLeftBtn.classList.add('opacity-0', 'pointer-events-none');
+        }
+        
+        // Show/hide right button
+        if (scrollLeft + clientWidth < scrollWidth - 10) {
+            scrollRightBtn.classList.remove('opacity-0', 'pointer-events-none');
+        } else {
+            scrollRightBtn.classList.add('opacity-0', 'pointer-events-none');
+        }
+    }
+    
+    scrollLeftBtn.addEventListener('click', function() {
+        scrollContainer.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+    
+    scrollRightBtn.addEventListener('click', function() {
+        scrollContainer.scrollBy({ left: 300, behavior: 'smooth' });
+    });
+    
+    scrollContainer.addEventListener('scroll', updateScrollButtons);
+    
+    // Initial check
+    updateScrollButtons();
+});
 </script>
 </body></html>

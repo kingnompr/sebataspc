@@ -109,7 +109,7 @@
                         <div class="mt-4 space-y-3">
                             @foreach($shippingOptions as $option)
                                 @php $active = $option['id'] === $selectedShippingId; @endphp
-                                <label class="flex flex-col gap-2 rounded-2xl border px-4 py-4 transition @if($active) border-primary bg-primary/5 @else border-slate-200 hover:border-primary/40 @endif">
+                                <label class="shipping-option flex flex-col gap-2 rounded-2xl border px-4 py-4 cursor-pointer transition-all @if($active) border-primary bg-primary/5 shadow-sm @else border-slate-200 hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm @endif">
                                     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                                         <div class="flex items-start gap-3">
                                             <input type="radio" name="shipping_method" value="{{ $option['id'] }}" @checked($active) required class="mt-1 size-4 text-primary focus:ring-primary">
@@ -131,9 +131,9 @@
                     </div>
 
                     <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-card">
-                        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
                             <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.4em] text-primary">3. Metode Pembayaran</p>
+                                <p class="text-xs font-semibold uppercase tracking-[0.4em] text-primary">3. METODE PEMBAYARAN</p>
                                 <p class="text-sm text-slate-500">Pilih salah satu metode pembayaran yang tersedia.</p>
                             </div>
                             <div class="flex items-center gap-2 text-xs text-slate-400">
@@ -141,25 +141,23 @@
                                 Enkripsi 256-bit
                             </div>
                         </div>
-                        <div class="mt-4 space-y-3">
+                        <div class="space-y-3">
                             <!-- COD Option -->
-                            <label class="rounded-2xl border-2 border-primary bg-primary/5 p-4 cursor-pointer">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <input type="radio" name="payment_method" value="cod" checked required class="size-4 text-primary focus:ring-primary">
-                                        <span class="material-symbols-outlined text-primary">payments</span>
-                                        <div>
-                                            <p class="text-sm font-semibold text-slate-900">Cash on Delivery (COD)</p>
-                                            <p class="text-xs text-slate-500">Bayar saat barang diterima</p>
-                                        </div>
+                            <label class="payment-option block rounded-2xl border p-4 cursor-pointer transition-all border-primary bg-primary/5 shadow-sm">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" name="payment_method" value="cod" checked required class="size-4 text-primary focus:ring-primary">
+                                    <span class="material-symbols-outlined text-primary">payments</span>
+                                    <div>
+                                        <p class="text-sm font-semibold text-slate-900">Cash on Delivery (COD)</p>
+                                        <p class="text-xs text-slate-500">Bayar saat barang diterima</p>
                                     </div>
                                 </div>
                             </label>
                             
                             <!-- Bank Transfer Options -->
                             <div class="space-y-2">
-                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Transfer Bank</p>
-                                <label class="rounded-2xl border border-slate-200 p-4 hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors block">
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mt-2">TRANSFER BANK</p>
+                                <label class="payment-option rounded-2xl border border-slate-200 p-4 hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm cursor-pointer transition-all block">
                                     <div class="flex items-center gap-3">
                                         <input type="radio" name="payment_method" value="bank_mandiri" required class="size-4 text-primary focus:ring-primary">
                                         <div class="flex size-10 items-center justify-center rounded-lg bg-blue-100 font-bold text-blue-600">M</div>
@@ -169,7 +167,7 @@
                                         </div>
                                     </div>
                                 </label>
-                                <label class="rounded-2xl border border-slate-200 p-4 hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors block">
+                                <label class="payment-option rounded-2xl border border-slate-200 p-4 hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm cursor-pointer transition-all block">
                                     <div class="flex items-center gap-3">
                                         <input type="radio" name="payment_method" value="bank_bca" required class="size-4 text-primary focus:ring-primary">
                                         <div class="flex size-10 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">BCA</div>
@@ -179,7 +177,7 @@
                                         </div>
                                     </div>
                                 </label>
-                                <label class="rounded-2xl border border-slate-200 p-4 hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors block">
+                                <label class="payment-option rounded-2xl border border-slate-200 p-4 hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm cursor-pointer transition-all block">
                                     <div class="flex items-center gap-3">
                                         <input type="radio" name="payment_method" value="bank_bri" required class="size-4 text-primary focus:ring-primary">
                                         <div class="flex size-10 items-center justify-center rounded-lg bg-blue-500 font-bold text-white">BRI</div>
@@ -194,7 +192,7 @@
                             <!-- E-Wallet Options -->
                             <div class="space-y-2">
                                 <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">E-Wallet</p>
-                                <label class="rounded-2xl border border-slate-200 p-4 hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors block">
+                                <label class="payment-option rounded-2xl border border-slate-200 p-4 hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm cursor-pointer transition-all block">
                                     <div class="flex items-center gap-3">
                                         <input type="radio" name="payment_method" value="dana" required class="size-4 text-primary focus:ring-primary">
                                         <div class="flex size-10 items-center justify-center rounded-lg bg-blue-500 font-bold text-white">DA</div>
@@ -204,7 +202,7 @@
                                         </div>
                                     </div>
                                 </label>
-                                <label class="rounded-2xl border border-slate-200 p-4 hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors block">
+                                <label class="payment-option rounded-2xl border border-slate-200 p-4 hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm cursor-pointer transition-all block">
                                     <div class="flex items-center gap-3">
                                         <input type="radio" name="payment_method" value="gopay" required class="size-4 text-primary focus:ring-primary">
                                         <div class="flex size-10 items-center justify-center rounded-lg bg-emerald-500 font-bold text-white">GP</div>
@@ -249,16 +247,16 @@
                             @endforelse
                         </div>
                         <div class="mt-6 space-y-3 text-sm text-slate-600">
-                            <div class="flex justify-between"><span>Subtotal</span><span>{{ $formatCurrency($summary['subtotal']) }}</span></div>
-                            <div class="flex justify-between"><span>Biaya Pengiriman</span><span>{{ $formatCurrency($summary['shipping']) }}</span></div>
-                            <div class="flex justify-between"><span>Asuransi (0.2%)</span><span>{{ $formatCurrency($summary['insurance']) }}</span></div>
-                            <div class="flex justify-between text-emerald-500"><span>Diskon</span><span>-{{ $formatCurrency($summary['discount']) }}</span></div>
+                            <div class="flex justify-between"><span>Subtotal</span><span id="subtotal-display">{{ $formatCurrency($summary['subtotal']) }}</span></div>
+                            <div class="flex justify-between"><span>Biaya Pengiriman</span><span id="shipping-display">{{ $formatCurrency($summary['shipping']) }}</span></div>
+                            <div class="flex justify-between"><span>Asuransi (0.2%)</span><span id="insurance-display">{{ $formatCurrency($summary['insurance']) }}</span></div>
+                            <div class="flex justify-between text-emerald-500"><span>Diskon</span><span id="discount-display">-{{ $formatCurrency($summary['discount']) }}</span></div>
                         </div>
 
                         <div class="mt-6 flex items-center justify-between border-t border-slate-200 pt-4">
                             <div>
                                 <p class="text-xs uppercase tracking-[0.4em] text-slate-400">Total Bayar</p>
-                                <p class="text-2xl font-semibold text-slate-900">{{ $formatCurrency($summary['total']) }}</p>
+                                <p class="text-2xl font-semibold text-slate-900" id="total-display">{{ $formatCurrency($summary['total']) }}</p>
                             </div>
                             <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-emerald-600">Checkout Aman</span>
                         </div>
@@ -292,5 +290,86 @@
             </div>
         </footer>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const shippingOptions = @json($shippingOptions);
+            const subtotal = {{ $summary['subtotal'] }};
+            const discount = {{ $summary['discount'] }};
+            
+            function formatCurrency(value) {
+                return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+            }
+            
+            function updateSummary() {
+                const selectedShipping = document.querySelector('input[name="shipping_method"]:checked');
+                if (!selectedShipping) return;
+                
+                const shippingId = selectedShipping.value;
+                const shippingOption = shippingOptions.find(opt => opt.id === shippingId);
+                const shippingCost = shippingOption ? shippingOption.price : 0;
+                
+                // Calculate insurance (0.2% of subtotal)
+                const insurance = Math.round(subtotal * 0.002);
+                
+                // Calculate total
+                const total = subtotal + shippingCost + insurance - discount;
+                
+                // Update display
+                document.getElementById('shipping-display').textContent = formatCurrency(shippingCost);
+                document.getElementById('insurance-display').textContent = formatCurrency(insurance);
+                document.getElementById('total-display').textContent = formatCurrency(total);
+            }
+            
+            // Update shipping method styling
+            function updateShippingMethodStyles() {
+                const shippingOptions = document.querySelectorAll('.shipping-option');
+                shippingOptions.forEach(label => {
+                    const radio = label.querySelector('input[type="radio"]');
+                    if (radio.checked) {
+                        label.classList.remove('border-slate-200');
+                        label.classList.add('border-primary', 'bg-primary/5', 'shadow-sm');
+                    } else {
+                        label.classList.remove('border-primary', 'bg-primary/5', 'shadow-sm');
+                        label.classList.add('border-slate-200');
+                    }
+                });
+            }
+            
+            // Update payment method styling
+            function updatePaymentMethodStyles() {
+                const paymentOptions = document.querySelectorAll('.payment-option');
+                paymentOptions.forEach(label => {
+                    const radio = label.querySelector('input[type="radio"]');
+                    if (radio.checked) {
+                        label.classList.remove('border-slate-200');
+                        label.classList.add('border-primary', 'bg-primary/5', 'shadow-sm');
+                    } else {
+                        label.classList.remove('border-primary', 'bg-primary/5', 'shadow-sm');
+                        label.classList.add('border-slate-200');
+                    }
+                });
+            }
+            
+            // Add event listeners to all shipping method radio buttons
+            const shippingRadios = document.querySelectorAll('input[name="shipping_method"]');
+            shippingRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updateSummary();
+                    updateShippingMethodStyles();
+                });
+            });
+            
+            // Add event listeners to all payment method radio buttons
+            const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+            paymentRadios.forEach(radio => {
+                radio.addEventListener('change', updatePaymentMethodStyles);
+            });
+            
+            // Initialize styles on load
+            updateShippingMethodStyles();
+            updatePaymentMethodStyles();
+        });
+    </script>
 </body>
 </html>

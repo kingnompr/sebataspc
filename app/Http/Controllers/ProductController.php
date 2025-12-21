@@ -81,13 +81,27 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        // Load reviews with user info, filtered by rating if specified
-        $reviewsQuery = $product->reviews()->with('user')->latest();
+        // Load reviews with user info, filtered and sorted
+        $reviewsQuery = $product->reviews()->with('user');
         
         $filterRating = $request->input('rating');
         if ($filterRating && in_array($filterRating, [1, 2, 3, 4, 5])) {
             $reviewsQuery->where('rating', $filterRating);
         }
+
+        // Filter verified purchases only
+        if ($request->input('verified') === '1') {
+            $reviewsQuery->where('is_verified_purchase', true);
+        }
+
+        // Sort reviews
+        $sortBy = $request->input('sort', 'latest');
+        $reviewsQuery = match ($sortBy) {
+            'highest' => $reviewsQuery->orderByDesc('rating')->orderByDesc('created_at'),
+            'lowest' => $reviewsQuery->orderBy('rating')->orderByDesc('created_at'),
+            'oldest' => $reviewsQuery->orderBy('created_at'),
+            default => $reviewsQuery->orderByDesc('created_at'), // latest
+        };
 
         $reviews = $reviewsQuery->paginate(10)->withQueryString();
 
@@ -114,6 +128,42 @@ class ProductController extends Controller
             ? $product->reviews()->where('user_id', auth()->id())->exists()
             : false;
 
+        // Check if user has purchased but not reviewed
+        $userCanReview = false;
+        $userHasPurchased = false;
+        if (auth()->check()) {
+            $userHasPurchased = auth()->user()->orders()
+                ->whereHas('items', function ($query) use ($product) {
+                    $query->where('product_id', $product->id);
+                })
+                ->whereIn('status', ['paid', 'processing', 'qc', 'shipped', 'delivered'])
+                ->exists();
+            
+            $userCanReview = $userHasPurchased && !$userHasReviewed;
+        }
+
+        // Parse specifications
+        $specs = [];
+        if ($product->specifications && is_array($product->specifications)) {
+            $specs = $product->specifications;
+        }
+        
+        // Add other technical specs from dedicated columns
+        if ($product->socket) $specs['socket'] = $product->socket;
+        if ($product->chipset) $specs['chipset'] = $product->chipset;
+        if ($product->memory_type) $specs['memory_type'] = $product->memory_type;
+        if ($product->memory_speed) $specs['memory_speed'] = $product->memory_speed . ' MHz';
+        if ($product->memory_slots) $specs['memory_slots'] = $product->memory_slots . ' Slot';
+        if ($product->interface) $specs['interface'] = $product->interface;
+        if ($product->capacity_gb) $specs['capacity'] = $product->capacity_gb . ' GB';
+        if ($product->tdp) $specs['tdp'] = $product->tdp . ' W';
+        if ($product->wattage) $specs['wattage'] = $product->wattage . ' W';
+        if ($product->efficiency_rating) $specs['efficiency_rating'] = $product->efficiency_rating;
+        if ($product->form_factor) $specs['form_factor'] = $product->form_factor;
+        if ($product->length_mm) $specs['length'] = $product->length_mm . ' mm';
+        if ($product->height_mm) $specs['height'] = $product->height_mm . ' mm';
+        if ($product->rgb_support) $specs['rgb_support'] = $product->rgb_support ? 'Yes' : 'No';
+
         return view('products.show', compact(
             'product', 
             'related', 
@@ -122,7 +172,8 @@ class ProductController extends Controller
             'totalReviews', 
             'avgRating',
             'userHasReviewed',
-            'filterRating'
+            'filterRating',
+            'specs'
         ));
     }
 

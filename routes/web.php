@@ -18,7 +18,55 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     $featuredProduct = Product::with('category')->featured()->first();
-    $featuredProducts = Product::with('category')->latest()->take(4)->get();
+    
+    // Get featured products with images - prioritize main components
+    $featuredProducts = collect();
+    
+    // Get processors with images (4 items)
+    $processors = Product::with('category')
+        ->where('category_id', 1)
+        ->whereNotNull('image')
+        ->where('image', '!=', '')
+        ->where('stock', '>', 0)
+        ->inRandomOrder()
+        ->take(4)
+        ->get();
+    $featuredProducts = $featuredProducts->merge($processors);
+    
+    // Get GPUs with images (3 items)
+    $gpus = Product::with('category')
+        ->where('category_id', 2)
+        ->whereNotNull('image')
+        ->where('image', '!=', '')
+        ->where('stock', '>', 0)
+        ->inRandomOrder()
+        ->take(3)
+        ->get();
+    $featuredProducts = $featuredProducts->merge($gpus);
+    
+    // Get Storage with images (3 items)
+    $storage = Product::with('category')
+        ->where('category_id', 5)
+        ->whereNotNull('image')
+        ->where('image', '!=', '')
+        ->where('stock', '>', 0)
+        ->inRandomOrder()
+        ->take(3)
+        ->get();
+    $featuredProducts = $featuredProducts->merge($storage);
+    
+    // Fill remaining with other products if needed
+    if ($featuredProducts->count() < 12) {
+        $remaining = Product::with('category')
+            ->whereNotNull('image')
+            ->where('image', '!=', '')
+            ->where('stock', '>', 0)
+            ->whereNotIn('id', $featuredProducts->pluck('id'))
+            ->inRandomOrder()
+            ->take(12 - $featuredProducts->count())
+            ->get();
+        $featuredProducts = $featuredProducts->merge($remaining);
+    }
 
     return view('welcome', compact('featuredProduct', 'featuredProducts'));
 })->name('home');

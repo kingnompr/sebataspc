@@ -160,9 +160,42 @@
                         </div>
                         <div id="specs" class="mt-6 grid gap-4 lg:grid-cols-2">
                             @forelse($specs as $key => $value)
+                                @php
+                                    // Format key label
+                                    $label = match($key) {
+                                        'socket' => 'Socket',
+                                        'chipset' => 'Chipset',
+                                        'memory_type' => 'Tipe Memory',
+                                        'memory_speed' => 'Kecepatan Memory',
+                                        'memory_slots' => 'Slot Memory',
+                                        'interface' => 'Interface',
+                                        'capacity' => 'Kapasitas',
+                                        'tdp' => 'TDP',
+                                        'wattage' => 'Watt',
+                                        'efficiency_rating' => 'Rating Efisiensi',
+                                        'form_factor' => 'Form Factor',
+                                        'length' => 'Panjang',
+                                        'height' => 'Tinggi',
+                                        'rgb_support' => 'RGB Support',
+                                        'type' => 'Tipe',
+                                        'generation' => 'Generasi',
+                                        'use_case' => 'Penggunaan',
+                                        'tier' => 'Tier',
+                                        default => Str::of($key)->replace('_', ' ')->title()
+                                    };
+                                    
+                                    // Format value if it's an array or object
+                                    if (is_array($value)) {
+                                        $displayValue = implode(', ', $value);
+                                    } elseif (is_bool($value)) {
+                                        $displayValue = $value ? 'Ya' : 'Tidak';
+                                    } else {
+                                        $displayValue = $value;
+                                    }
+                                @endphp
                                 <div class="rounded-2xl border border-white/5 bg-accent/40 p-4">
-                                    <p class="text-xs uppercase tracking-[0.3em] text-slate-500">{{ Str::of($key)->replace('_', ' ')->title() }}</p>
-                                    <p class="mt-2 text-sm text-slate-200">{{ $value }}</p>
+                                    <p class="text-xs uppercase tracking-[0.3em] text-slate-500">{{ $label }}</p>
+                                    <p class="mt-2 text-sm font-medium text-slate-200">{{ $displayValue }}</p>
                                 </div>
                             @empty
                                 <p class="text-sm text-slate-400">Belum ada detail spesifikasi untuk produk ini.</p>
@@ -214,16 +247,43 @@
                     <div class="mt-10 rounded-3xl border border-white/5 bg-card/80 p-6 shadow-2xl" id="reviews-section">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="text-2xl font-semibold">Ulasan Terbaru</h3>
-                            <select onchange="window.location.href='?rating='+this.value" class="rounded-lg border border-white/10 bg-transparent px-4 py-2 text-sm text-white">
-                                <option value="">Semua Rating</option>
-                                @for($i = 5; $i >= 1; $i--)
-                                    <option value="{{ $i }}" {{ request('rating') == $i ? 'selected' : '' }}>{{ $i }} Bintang</option>
-                                @endfor
-                            </select>
+                            <div class="flex gap-3">
+                                <select onchange="window.location.href='?rating='+this.value+'&sort={{ request('sort', 'latest') }}&verified={{ request('verified', '0') }}'" class="rounded-lg border border-white/10 bg-transparent px-4 py-2 text-sm text-white">
+                                    <option value="">Semua Rating</option>
+                                    @for($i = 5; $i >= 1; $i--)
+                                        <option value="{{ $i }}" {{ request('rating') == $i ? 'selected' : '' }}>{{ $i }} Bintang</option>
+                                    @endfor
+                                </select>
+                                <select onchange="window.location.href='?rating={{ request('rating', '') }}&sort='+this.value+'&verified={{ request('verified', '0') }}'" class="rounded-lg border border-white/10 bg-transparent px-4 py-2 text-sm text-white">
+                                    <option value="latest" {{ request('sort', 'latest') == 'latest' ? 'selected' : '' }}>Terbaru</option>
+                                    <option value="highest" {{ request('sort') == 'highest' ? 'selected' : '' }}>Rating Tertinggi</option>
+                                    <option value="lowest" {{ request('sort') == 'lowest' ? 'selected' : '' }}>Rating Terendah</option>
+                                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                                </select>
+                                <label class="flex items-center gap-2 rounded-lg border border-white/10 bg-transparent px-4 py-2 text-sm text-white cursor-pointer hover:border-primary/40 transition-colors">
+                                    <input type="checkbox" onchange="window.location.href='?rating={{ request('rating', '') }}&sort={{ request('sort', 'latest') }}&verified='+(this.checked ? '1' : '0')" {{ request('verified') == '1' ? 'checked' : '' }} class="rounded border-white/20 bg-white/5 text-primary focus:ring-primary">
+                                    <span>Pembelian Terverifikasi</span>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- Review Form -->
                         @auth
+                            @if($userCanReview)
+                            <div class="mb-8 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+                                <div class="flex items-start gap-3">
+                                    <span class="material-symbols-outlined text-primary text-2xl">rate_review</span>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-semibold text-white">Anda telah membeli produk ini!</p>
+                                        <p class="text-xs text-slate-400 mt-1">Bagikan pengalaman Anda dengan memberikan ulasan</p>
+                                    </div>
+                                    <a href="#review-form" class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition-colors">
+                                        Tulis Ulasan
+                                    </a>
+                                </div>
+                            </div>
+                            @endif
+
                             @if(!$userHasReviewed)
                             <div id="review-form" class="mb-8 rounded-2xl border border-white/5 bg-accent/20 p-6">
                                 <h4 class="text-lg font-semibold mb-4">Tulis Ulasan Anda</h4>

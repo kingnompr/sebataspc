@@ -34,7 +34,9 @@ class AdminController extends Controller
             'total_products' => Product::count(),
             'categories' => Category::count(),
             'total_revenue' => $totalRevenue,
-            'revenue_formatted' => number_format($totalRevenue / 1000000, 1) . 'M',
+            'revenue_formatted' => $totalRevenue <= 50000000 
+                ? number_format($totalRevenue / 1000000, 1) . ' Juta'
+                : number_format($totalRevenue, 0, ',', '.'),
             'orders_today' => $ordersToday,
             'pending_orders' => $pendingOrders,
             'low_stock_count' => $lowStockCount,

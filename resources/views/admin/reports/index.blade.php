@@ -14,7 +14,13 @@
             </div>
             <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Total Revenue</p>
         </div>
-        <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Rp {{ number_format($totalRevenue / 1000000, 1) }}M</h3>
+        <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
+            @if($totalRevenue <= 50000000)
+                Rp {{ number_format($totalRevenue / 1000000, 1) }} Juta
+            @else
+                Rp {{ number_format($totalRevenue, 0, ',', '.') }}
+            @endif
+        </h3>
     </div>
     
     <div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
@@ -24,7 +30,13 @@
             </div>
             <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">This Month</p>
         </div>
-        <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Rp {{ number_format($monthlyRevenue / 1000000, 1) }}M</h3>
+        <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
+            @if($monthlyRevenue <= 50000000)
+                Rp {{ number_format($monthlyRevenue / 1000000, 1) }} Juta
+            @else
+                Rp {{ number_format($monthlyRevenue, 0, ',', '.') }}
+            @endif
+        </h3>
     </div>
     
     <div class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
@@ -85,7 +97,13 @@
             <div>
                 <div class="flex items-center justify-between mb-1">
                     <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ $category->name }}</span>
-                    <span class="text-sm font-bold text-slate-900 dark:text-white">Rp {{ number_format($category->revenue / 1000000, 1) }}M</span>
+                    <span class="text-sm font-bold text-slate-900 dark:text-white">
+                        @if($category->revenue <= 50000000)
+                            Rp {{ number_format($category->revenue / 1000000, 1) }} Juta
+                        @else
+                            Rp {{ number_format($category->revenue, 0, ',', '.') }}
+                        @endif
+                    </span>
                 </div>
                 <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                     <div class="bg-primary h-2 rounded-full" style="width: {{ ($category->revenue / $salesByCategory->max('revenue')) * 100 }}%"></div>

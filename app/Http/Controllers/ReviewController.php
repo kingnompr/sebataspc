@@ -29,18 +29,30 @@ class ReviewController extends Controller
             return back()->withErrors(['review' => 'Anda sudah memberikan ulasan untuk produk ini.']);
         }
 
+        // Check if user has purchased this product (verified purchase)
+        $hasPurchased = auth()->user()->orders()
+            ->whereHas('items', function ($query) use ($product) {
+                $query->where('product_id', $product->id);
+            })
+            ->whereIn('status', ['paid', 'processing', 'qc', 'shipped', 'delivered'])
+            ->exists();
+
         Review::create([
             'product_id' => $product->id,
             'user_id' => auth()->id(),
             'rating' => $validated['rating'],
             'comment' => $validated['comment'],
-            'is_verified_purchase' => false, // Could check if user actually purchased
+            'is_verified_purchase' => $hasPurchased,
         ]);
 
         // Update product average rating
         $avgRating = $product->reviews()->avg('rating');
         $product->update(['rating' => round($avgRating, 1)]);
 
-        return back()->with('success', 'Terima kasih! Ulasan Anda telah berhasil ditambahkan.');
+        $message = $hasPurchased 
+            ? 'Terima kasih! Ulasan terverifikasi Anda telah berhasil ditambahkan.' 
+            : 'Terima kasih! Ulasan Anda telah berhasil ditambahkan.';
+
+        return back()->with('success', $message);
     }
 }

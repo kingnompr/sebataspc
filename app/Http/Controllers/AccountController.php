@@ -24,15 +24,27 @@ class AccountController extends Controller
             'savedBuilds.pcBuild.components.product',
         ]);
 
-        $activeOrder = $user->orders()
-            ->active()
-            ->with('items.product')
-            ->latest('created_at')
-            ->first();
+        // Check if user is searching for specific order by ID
+        $orderIdSearch = $request->input('order_id');
+        
+        if ($orderIdSearch) {
+            // Search for order by order_number
+            $activeOrder = $user->orders()
+                ->where('order_number', 'LIKE', '%' . $orderIdSearch . '%')
+                ->with('items.product')
+                ->latest('created_at')
+                ->first();
+        } else {
+            // Get latest active order
+            $activeOrder = $user->orders()
+                ->active()
+                ->with('items.product')
+                ->latest('created_at')
+                ->first();
+        }
 
         $orderHistory = $user->orders()
             ->latest('created_at')
-            ->take(5)
             ->get();
 
         $savedBuilds = $user->savedBuilds()
@@ -77,7 +89,6 @@ class AccountController extends Controller
             'avatarUrl' => $avatarUrl,
         ]);
     }
-
     /**
      * Manage stored payment methods.
      */

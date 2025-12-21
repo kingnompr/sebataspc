@@ -463,13 +463,16 @@ class PcBuildController extends Controller
             'cpu_cooler' => 'Cooling',
         ];
 
+        // Define core components that MUST have recommendations
+        $coreComponents = ['processor', 'motherboard', 'ram', 'storage', 'psu', 'casing'];
+
         foreach ($allocation as $component => $percentage) {
             $allocatedBudget = $budget * ($percentage / 100);
             $categoryName = $componentMapping[$component] ?? null;
             
             if (!$categoryName) continue;
 
-            // Find products in price range (±15% tolerance)
+            // Find products in price range (±15% tolerance for initial search)
             $minPrice = $allocatedBudget * 0.85;
             $maxPrice = $allocatedBudget * 1.15;
 
@@ -482,8 +485,55 @@ class PcBuildController extends Controller
                 ->orderByDesc('is_featured')
                 ->first();
 
+            // If no product found in initial range AND it's a core component, expand search
+            if (!$product && in_array($component, $coreComponents)) {
+                // Try wider range (±30%)
+                $minPrice = $allocatedBudget * 0.7;
+                $maxPrice = $allocatedBudget * 1.3;
+                
+                $product = Product::whereHas('category', function ($query) use ($categoryName) {
+                        $query->where('name', 'LIKE', "%{$categoryName}%");
+                    })
+                    ->whereBetween('price', [$minPrice, $maxPrice])
+                    ->where('stock', '>', 0)
+                    ->orderByDesc('rating')
+                    ->orderByDesc('is_featured')
+                    ->first();
+            }
+
+            // If still no product for core components, get closest available product
+            if (!$product && in_array($component, $coreComponents)) {
+                $product = Product::whereHas('category', function ($query) use ($categoryName) {
+                        $query->where('name', 'LIKE', "%{$categoryName}%");
+                    })
+                    ->where('stock', '>', 0)
+                    ->orderByRaw('ABS(price - ?) ASC', [$allocatedBudget])
+                    ->orderByDesc('rating')
+                    ->first();
+            }
+
             if ($product) {
                 $recommendations[$component] = $product;
+            }
+        }
+
+        // Final check: ensure ALL core components have recommendations
+        foreach ($coreComponents as $coreComponent) {
+            if (!isset($recommendations[$coreComponent])) {
+                $categoryName = $componentMapping[$coreComponent];
+                
+                // Get any available product from this category
+                $fallbackProduct = Product::whereHas('category', function ($query) use ($categoryName) {
+                        $query->where('name', 'LIKE', "%{$categoryName}%");
+                    })
+                    ->where('stock', '>', 0)
+                    ->orderByDesc('rating')
+                    ->orderByDesc('is_featured')
+                    ->first();
+                
+                if ($fallbackProduct) {
+                    $recommendations[$coreComponent] = $fallbackProduct;
+                }
             }
         }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -170,22 +171,83 @@ class CartController extends Controller
     /**
      * Show order confirmation/thank you page.
      */
-    public function confirmation(Request $request): View
+    public function confirmation(Request $request): View|RedirectResponse
     {
-        $cart = $this->resolveCart($request)->loadMissing('items.product');
+        $checkoutData = session('checkout_data');
+        
+        if (!$checkoutData) {
+            return redirect()->route('cart.index')->with('error', 'Data checkout tidak ditemukan');
+        }
 
-        $orderNumber = 'PC-'.now()->format('Ymd').'-'.Str::upper(Str::random(4));
+        $cart = $this->resolveCart($request)->loadMissing('items.product');
+        
+        if ($cart->items->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Keranjang kosong');
+        }
+
         $items = $cart->items;
 
         $subtotal = $items->sum(function ($item) {
             $price = optional($item->product)->price ?? 0;
-
             return $price * ($item->quantity ?? 0);
         });
 
-        $shippingFee = 150_000;
-        $discount = 200_000;
-        $total = $subtotal + $shippingFee - $discount;
+        // Get shipping fee from checkout data
+        $shippingOptions = [
+            'jne_reguler' => ['price' => 50000, 'label' => 'JNE Reguler'],
+            'jne_yes' => ['price' => 85000, 'label' => 'JNE YES'],
+            'gosend_instant' => ['price' => 120000, 'label' => 'GoSend Instant'],
+        ];
+        
+        $selectedShipping = $shippingOptions[$checkoutData['shipping_method']] ?? $shippingOptions['jne_reguler'];
+        $shippingFee = $selectedShipping['price'];
+        $insuranceFee = (int) round($subtotal * 0.002);
+        $discount = 0;
+        $total = $subtotal + $shippingFee + $insuranceFee - $discount;
+
+        // Create order in database
+        $orderNumber = 'ORD-'.now()->format('Ymd').'-'.Str::upper(Str::random(6));
+        
+        $order = Order::create([
+            'user_id' => auth()->id(),
+            'order_number' => $orderNumber,
+            'status' => 'pending',
+            'progress_stage' => 1,
+            'subtotal' => $subtotal,
+            'shipping_fee' => $shippingFee,
+            'discount' => $discount,
+            'total' => $total,
+            'courier' => $selectedShipping['label'],
+            'estimated_delivery_at' => now()->addDays(3),
+            'metadata' => [
+                'shipping_address' => [
+                    'first_name' => $checkoutData['first_name'],
+                    'last_name' => $checkoutData['last_name'],
+                    'address' => $checkoutData['address'],
+                    'city' => $checkoutData['city'],
+                    'postal_code' => $checkoutData['postal_code'],
+                    'phone' => $checkoutData['phone'],
+                ],
+                'payment_method' => $checkoutData['payment_method'],
+                'shipping_method' => $checkoutData['shipping_method'],
+            ],
+        ]);
+
+        // Create order items
+        foreach ($items as $item) {
+            $order->items()->create([
+                'product_id' => $item->product_id,
+                'name' => $item->product->name,
+                'quantity' => $item->quantity,
+                'price' => $item->product->price,
+            ]);
+        }
+
+        // Clear cart after order created
+        $cart->items()->delete();
+
+        // Clear checkout data from session
+        session()->forget('checkout_data');
 
         $trackingTimeline = [
             [
@@ -194,14 +256,14 @@ class CartController extends Controller
                 'status' => 'done',
             ],
             [
-                'label' => 'Pembayaran Berhasil',
-                'time' => now()->addMinutes(5)->format('d M Y, H:i').' WIB',
-                'status' => 'done',
+                'label' => 'Menunggu Pembayaran',
+                'time' => $checkoutData['payment_method'] === 'cod' ? 'Bayar saat barang diterima' : 'Segera selesaikan pembayaran Anda',
+                'status' => 'active',
             ],
             [
                 'label' => 'Sedang Diproses',
-                'time' => 'Tim kami sedang menyiapkan komponen Anda.',
-                'status' => 'active',
+                'time' => 'Pesanan akan diproses setelah pembayaran',
+                'status' => 'pending',
             ],
             [
                 'label' => 'Estimasi Pengiriman',
@@ -211,24 +273,34 @@ class CartController extends Controller
         ];
 
         $shippingAddress = [
-            'recipient' => 'John Doe (Rumah)',
-            'address' => 'Jalan Jendral Sudirman No. 45, RT.01/RW.03, Menteng, Jakarta Pusat, DKI Jakarta, 10220',
-            'phone' => '0812-3456-7890',
-            'city' => 'Jakarta Pusat, DKI Jakarta',
+            'recipient' => $checkoutData['first_name'].' '.$checkoutData['last_name'],
+            'address' => $checkoutData['address'],
+            'phone' => $checkoutData['phone'],
+            'city' => $checkoutData['city'].', '.$checkoutData['postal_code'],
         ];
 
         $paymentSummary = [
-            'method' => 'Transfer Bank BCA',
-            'status' => 'Lunas',
+            'method' => match($checkoutData['payment_method']) {
+                'cod' => 'Cash on Delivery (COD)',
+                'bank_mandiri' => 'Transfer Bank MANDIRI',
+                'bank_bca' => 'Transfer Bank BCA',
+                'bank_bri' => 'Transfer Bank BRI',
+                'dana' => 'DANA E-Wallet',
+                'gopay' => 'GOPAY E-Wallet',
+                default => 'Cash on Delivery',
+            },
+            'status' => 'Menunggu Pembayaran',
         ];
 
         return view('cart.confirmation', [
             'cart' => $cart,
             'orderNumber' => $orderNumber,
+            'order' => $order,
             'trackingTimeline' => $trackingTimeline,
             'summary' => [
                 'subtotal' => $subtotal,
                 'shipping' => $shippingFee,
+                'insurance' => $insuranceFee,
                 'discount' => $discount,
                 'total' => $total,
             ],
