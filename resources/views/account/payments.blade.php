@@ -70,7 +70,7 @@
                                     <p class="text-xs text-slate-500">Total Pesanan</p>
                                     <p class="text-2xl font-bold text-orange-600">Rp {{ number_format($order->total, 0, ',', '.') }}</p>
                                     <div class="flex gap-2 mt-2">
-                                        <a href="{{ route('checkout.payment') }}" class="px-4 py-2 bg-orange-600 text-white text-sm font-semibold rounded-lg hover:bg-orange-700">
+                                        <a href="{{ route('orders.payment', $order) }}" class="px-4 py-2 bg-orange-600 text-white text-sm font-semibold rounded-lg hover:bg-orange-700">
                                             Bayar Sekarang
                                         </a>
                                         <button class="px-4 py-2 border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50">

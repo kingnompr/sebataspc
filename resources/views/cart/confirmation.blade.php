@@ -76,9 +76,32 @@
                     <div class="flex size-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-500">
                         <span class="material-symbols-outlined text-3xl">check_circle</span>
                     </div>
-                    <h1 class="mt-4 text-3xl font-semibold text-slate-900">Terima Kasih! Pesanan Dikonfirmasi</h1>
-                    <p class="mt-2 text-sm text-slate-500">Kami telah mengirimkan email konfirmasi ke <span class="font-semibold">user@example.com</span>. Pesanan Anda sedang dipersiapkan.</p>
-                    <p class="mt-1 text-xs text-slate-400">No. Pesanan: <span class="font-semibold text-primary">{{ $orderNumber }}</span></p>
+                    <h1 class="mt-4 text-3xl font-semibold text-slate-900">Pesanan Berhasil Dibuat!</h1>
+                    <p class="mt-2 text-sm text-slate-500">
+                        @if($order->status === 'pending')
+                            Pesanan Anda telah dibuat dengan nomor <span class="font-semibold text-primary">{{ $orderNumber }}</span>
+                        @else
+                            Pembayaran berhasil dikonfirmasi! Nomor pesanan: <span class="font-semibold text-primary">{{ $orderNumber }}</span>
+                        @endif
+                    </p>
+                    
+                    @if($order->status === 'pending')
+                        <div class="mt-4 rounded-lg bg-orange-50 border border-orange-200 px-4 py-3 text-sm">
+                            <p class="font-semibold text-orange-800 mb-1">⏰ Menunggu Pembayaran</p>
+                            <p class="text-orange-700">
+                                @if($paymentSummary['method'] === 'Cash on Delivery (COD)')
+                                    Anda akan membayar saat barang tiba. Total: <strong>Rp {{ number_format($summary['total'], 0, ',', '.') }}</strong>
+                                @else
+                                    Silakan selesaikan pembayaran Anda. Pesanan akan diproses setelah pembayaran terverifikasi oleh admin.
+                                @endif
+                            </p>
+                        </div>
+                    @else
+                        <div class="mt-4 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm">
+                            <p class="font-semibold text-green-800 mb-1">✓ Pembayaran Berhasil</p>
+                            <p class="text-green-700">Pesanan Anda sedang diproses. Kami akan menghubungi Anda jika ada informasi lebih lanjut.</p>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1.2fr),minmax(0,0.8fr)]">

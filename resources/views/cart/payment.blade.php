@@ -150,9 +150,10 @@
                                             <li>Masukkan nomor Virtual Account di atas</li>
                                             <li>Masukkan nominal Rp {{ number_format($summary['total'], 0, ',', '.') }}</li>
                                             <li>Konfirmasi dan selesaikan pembayaran</li>
+                                            <li>Klik tombol "Konfirmasi Pesanan" di bawah setelah transfer</li>
                                         </ol>
-                                        <p class="mt-3 text-xs text-gray-500">
-                                            * Pembayaran akan otomatis terverifikasi dalam 5-10 menit setelah transfer berhasil
+                                        <p class="mt-3 text-xs bg-yellow-100 border border-yellow-300 rounded p-2 text-yellow-800">
+                                            <strong>Penting:</strong> Setelah transfer, klik tombol "Konfirmasi Pesanan" agar pesanan Anda dapat diproses. Status akan berubah menjadi "Sudah Dibayar" setelah admin memverifikasi pembayaran Anda.
                                         </p>
                                     </div>
                                 </div>
@@ -178,7 +179,8 @@
                                     <h3 class="font-semibold text-gray-900 mb-2">E-Wallet - {{ $walletName }}</h3>
                                     <p class="text-sm text-gray-600 mb-4">Masukkan nomor {{ $walletName }} Anda untuk melanjutkan pembayaran</p>
                                     
-                                    <form action="{{ route('checkout.confirmation') }}" method="GET" class="space-y-4">
+                                    <form action="{{ route('checkout.payment.process') }}" method="POST" class="space-y-4">
+                                        @csrf
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                                 Nomor Telepon {{ $walletName }}
@@ -202,18 +204,21 @@
                                         </div>
 
                                         <div class="text-sm text-gray-600">
-                                            <p class="font-medium mb-2">Langkah selanjutnya:</p>
+                                            <p class="font-medium mb-2">Langkah pembayaran:</p>
                                             <ol class="list-decimal list-inside space-y-1">
                                                 <li>Masukkan nomor {{ $walletName }} Anda di atas</li>
-                                                <li>Klik tombol "Lanjutkan ke {{ $walletName }}"</li>
-                                                <li>Buka aplikasi {{ $walletName }} untuk konfirmasi pembayaran</li>
-                                                <li>Masukkan PIN {{ $walletName }} Anda</li>
-                                                <li>Pembayaran selesai</li>
+                                                <li>Klik tombol "Konfirmasi Pesanan"</li>
+                                                <li>Buka aplikasi {{ $walletName }} di HP Anda</li>
+                                                <li>Cari notifikasi pembayaran dari SEBATAS PC</li>
+                                                <li>Konfirmasi pembayaran dan masukkan PIN {{ $walletName }}</li>
                                             </ol>
+                                            <p class="mt-3 text-xs bg-yellow-100 border border-yellow-300 rounded p-2 text-yellow-800">
+                                                <strong>Penting:</strong> Setelah bayar di aplikasi {{ $walletName }}, pesanan akan otomatis diverifikasi. Status akan berubah menjadi "Sudah Dibayar" setelah admin konfirmasi.
+                                            </p>
                                         </div>
 
                                         <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-medium">
-                                            Lanjutkan ke {{ $walletName }}
+                                            Konfirmasi Pesanan
                                         </button>
                                     </form>
                                 </div>
@@ -228,9 +233,16 @@
                         <a href="{{ route('checkout.show') }}" class="flex-1 text-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
                             Kembali
                         </a>
-                        <a href="{{ route('checkout.confirmation') }}" class="flex-1 text-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition font-medium">
-                            Konfirmasi Pesanan
-                        </a>
+                        <form method="POST" action="{{ route('checkout.payment.process') }}" class="flex-1">
+                            @csrf
+                            <button type="submit" class="w-full px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                                @if($checkoutData['payment_method'] === 'cod')
+                                    Konfirmasi Pesanan
+                                @else
+                                    Konfirmasi Pesanan
+                                @endif
+                            </button>
+                        </form>
                     </div>
                 @else
                     <div class="mt-6">

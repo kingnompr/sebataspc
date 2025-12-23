@@ -120,7 +120,7 @@ class CartController extends Controller
     /**
      * Show payment page based on payment method.
      */
-    public function payment(Request $request): View
+    public function payment(Request $request): View|RedirectResponse
     {
         $checkoutData = session('checkout_data');
         
@@ -169,9 +169,9 @@ class CartController extends Controller
     }
 
     /**
-     * Show order confirmation/thank you page.
+     * Process payment and create order with paid status.
      */
-    public function confirmation(Request $request): View|RedirectResponse
+    public function processPayment(Request $request): RedirectResponse
     {
         $checkoutData = session('checkout_data');
         
@@ -205,14 +205,18 @@ class CartController extends Controller
         $discount = 0;
         $total = $subtotal + $shippingFee + $insuranceFee - $discount;
 
-        // Create order in database
+        // Create order in database with PENDING status
+        // All orders start as pending, will be updated to paid after payment confirmation
         $orderNumber = 'ORD-'.now()->format('Ymd').'-'.Str::upper(Str::random(6));
+        
+        $orderStatus = 'pending';
+        $progressStage = 1;
         
         $order = Order::create([
             'user_id' => auth()->id(),
             'order_number' => $orderNumber,
-            'status' => 'pending',
-            'progress_stage' => 1,
+            'status' => $orderStatus,
+            'progress_stage' => $progressStage,
             'subtotal' => $subtotal,
             'shipping_fee' => $shippingFee,
             'discount' => $discount,
@@ -246,37 +250,204 @@ class CartController extends Controller
         // Clear cart after order created
         $cart->items()->delete();
 
+        // Store order ID in session for confirmation page
+        session(['order_id' => $order->id]);
+
         // Clear checkout data from session
         session()->forget('checkout_data');
 
+        return redirect()->route('checkout.confirmation')->with('success', 'Pesanan berhasil dibuat!');
+    }
+
+    /**
+     * Show payment page for existing order.
+     */
+    public function showOrderPayment(Request $request, Order $order): View|RedirectResponse
+    {
+        // Ensure order belongs to authenticated user
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to order');
+        }
+
+        // Only show payment for pending orders
+        if ($order->status !== 'pending') {
+            return redirect()->route('account.payments')
+                ->with('info', 'Pesanan ini sudah dibayar atau tidak memerlukan pembayaran.');
+        }
+
+        $checkoutData = $order->metadata;
+        $paymentMethod = $checkoutData['payment_method'] ?? 'cod';
+
+        // Generate Virtual Account for bank transfers
+        $virtualAccount = null;
+        if (in_array($paymentMethod, ['bank_mandiri', 'bank_bca', 'bank_bri'])) {
+            $bankCode = match($paymentMethod) {
+                'bank_mandiri' => '008',
+                'bank_bca' => '014',
+                'bank_bri' => '002',
+            };
+            $virtualAccount = $bankCode . rand(1000000000, 9999999999);
+        }
+
+        return view('orders.payment', [
+            'order' => $order,
+            'checkoutData' => $checkoutData,
+            'orderNumber' => $order->order_number,
+            'virtualAccount' => $virtualAccount,
+            'summary' => [
+                'subtotal' => $order->subtotal,
+                'shipping' => $order->shipping_fee,
+                'insurance' => (int) round($order->subtotal * 0.002),
+                'discount' => $order->discount,
+                'total' => $order->total,
+            ],
+        ]);
+    }
+
+    /**
+
+        $cart = $this->resolveCart($request)->loadMissing('items.product');
+        
+        if ($cart->items->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Keranjang kosong');
+        }
+
+        $items = $cart->items;
+
+        $subtotal = $items->sum(function ($item) {
+            $price = optional($item->product)->price ?? 0;
+            return $price * ($item->quantity ?? 0);
+        });
+
+        // Get shipping fee from checkout data
+        $shippingOptions = [
+            'jne_reguler' => ['price' => 50000, 'label' => 'JNE Reguler'],
+            'jne_yes' => ['price' => 85000, 'label' => 'JNE YES'],
+            'gosend_instant' => ['price' => 120000, 'label' => 'GoSend Instant'],
+        ];
+        
+        $selectedShipping = $shippingOptions[$checkoutData['shipping_method']] ?? $shippingOptions['jne_reguler'];
+        $shippingFee = $selectedShipping['price'];
+        $insuranceFee = (int) round($subtotal * 0.002);
+        $discount = 0;
+        $total = $subtotal + $shippingFee + $insuranceFee - $discount;
+
+        // Create order in database with PENDING status
+        // All orders start as pending, will be updated to paid after payment confirmation
+        $orderNumber = 'ORD-'.now()->format('Ymd').'-'.Str::upper(Str::random(6));
+        
+        $orderStatus = 'pending';
+        $progressStage = 1;
+        
+        $order = Order::create([
+            'user_id' => auth()->id(),
+            'order_number' => $orderNumber,
+            'status' => $orderStatus,
+            'progress_stage' => $progressStage,
+            'subtotal' => $subtotal,
+            'shipping_fee' => $shippingFee,
+            'discount' => $discount,
+            'total' => $total,
+            'courier' => $selectedShipping['label'],
+            'estimated_delivery_at' => now()->addDays(3),
+            'metadata' => [
+                'shipping_address' => [
+                    'first_name' => $checkoutData['first_name'],
+                    'last_name' => $checkoutData['last_name'],
+                    'address' => $checkoutData['address'],
+                    'city' => $checkoutData['city'],
+                    'postal_code' => $checkoutData['postal_code'],
+                    'phone' => $checkoutData['phone'],
+                ],
+                'payment_method' => $checkoutData['payment_method'],
+                'shipping_method' => $checkoutData['shipping_method'],
+            ],
+        ]);
+
+        // Create order items
+        foreach ($items as $item) {
+            $order->items()->create([
+                'product_id' => $item->product_id,
+                'name' => $item->product->name,
+                'quantity' => $item->quantity,
+                'price' => $item->product->price,
+            ]);
+        }
+
+        // Clear cart after order created
+        $cart->items()->delete();
+
+        // Store order ID in session for confirmation page
+        session(['order_id' => $order->id]);
+
+        // Clear checkout data from session
+        session()->forget('checkout_data');
+
+        return redirect()->route('checkout.confirmation')->with('success', 'Pesanan berhasil dibuat!');
+    }
+
+    /**
+     * Show order confirmation/thank you page.
+     */
+    public function confirmation(Request $request): View|RedirectResponse
+    {
+        $orderId = session('order_id');
+        
+        if (!$orderId) {
+            return redirect()->route('cart.index')->with('error', 'Data pesanan tidak ditemukan');
+        }
+
+        $order = Order::with('items.product')->findOrFail($orderId);
+        
+        // Clear order ID from session
+        session()->forget('order_id');
+
+        $checkoutData = $order->metadata;
+
+        // Build tracking timeline based on order status
         $trackingTimeline = [
             [
                 'label' => 'Pesanan Diterima',
-                'time' => now()->format('d M Y, H:i').' WIB',
+                'time' => $order->created_at->format('d M Y, H:i').' WIB',
                 'status' => 'done',
-            ],
-            [
-                'label' => 'Menunggu Pembayaran',
-                'time' => $checkoutData['payment_method'] === 'cod' ? 'Bayar saat barang diterima' : 'Segera selesaikan pembayaran Anda',
-                'status' => 'active',
-            ],
-            [
-                'label' => 'Sedang Diproses',
-                'time' => 'Pesanan akan diproses setelah pembayaran',
-                'status' => 'pending',
-            ],
-            [
-                'label' => 'Estimasi Pengiriman',
-                'time' => now()->addDays(2)->format('d M').' - '.now()->addDays(4)->format('d M Y'),
-                'status' => 'pending',
             ],
         ];
 
+        if ($order->status === 'paid') {
+            $trackingTimeline[] = [
+                'label' => 'Pembayaran Berhasil',
+                'time' => $order->updated_at->format('d M Y, H:i').' WIB',
+                'status' => 'done',
+            ];
+            $trackingTimeline[] = [
+                'label' => 'Sedang Diproses',
+                'time' => 'Pesanan Anda sedang diproses',
+                'status' => 'active',
+            ];
+        } else {
+            $trackingTimeline[] = [
+                'label' => 'Menunggu Pembayaran',
+                'time' => $checkoutData['payment_method'] === 'cod' ? 'Bayar saat barang diterima' : 'Segera selesaikan pembayaran Anda',
+                'status' => 'active',
+            ];
+            $trackingTimeline[] = [
+                'label' => 'Sedang Diproses',
+                'time' => 'Pesanan akan diproses setelah pembayaran',
+                'status' => 'pending',
+            ];
+        }
+
+        $trackingTimeline[] = [
+            'label' => 'Estimasi Pengiriman',
+            'time' => now()->addDays(2)->format('d M').' - '.now()->addDays(4)->format('d M Y'),
+            'status' => 'pending',
+        ];
+
         $shippingAddress = [
-            'recipient' => $checkoutData['first_name'].' '.$checkoutData['last_name'],
-            'address' => $checkoutData['address'],
-            'phone' => $checkoutData['phone'],
-            'city' => $checkoutData['city'].', '.$checkoutData['postal_code'],
+            'recipient' => $checkoutData['shipping_address']['first_name'].' '.$checkoutData['shipping_address']['last_name'],
+            'address' => $checkoutData['shipping_address']['address'],
+            'phone' => $checkoutData['shipping_address']['phone'],
+            'city' => $checkoutData['shipping_address']['city'].', '.$checkoutData['shipping_address']['postal_code'],
         ];
 
         $paymentSummary = [
@@ -289,20 +460,20 @@ class CartController extends Controller
                 'gopay' => 'GOPAY E-Wallet',
                 default => 'Cash on Delivery',
             },
-            'status' => 'Menunggu Pembayaran',
+            'status' => $order->status === 'paid' ? 'Pembayaran Berhasil' : 'Menunggu Pembayaran',
         ];
 
         return view('cart.confirmation', [
-            'cart' => $cart,
-            'orderNumber' => $orderNumber,
+            'cart' => new Cart(), // Empty cart
+            'orderNumber' => $order->order_number,
             'order' => $order,
             'trackingTimeline' => $trackingTimeline,
             'summary' => [
-                'subtotal' => $subtotal,
-                'shipping' => $shippingFee,
-                'insurance' => $insuranceFee,
-                'discount' => $discount,
-                'total' => $total,
+                'subtotal' => $order->subtotal,
+                'shipping' => $order->shipping_fee,
+                'insurance' => (int) round($order->subtotal * 0.002),
+                'discount' => $order->discount,
+                'total' => $order->total,
             ],
             'shippingAddress' => $shippingAddress,
             'paymentSummary' => $paymentSummary,

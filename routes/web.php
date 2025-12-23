@@ -88,7 +88,10 @@ Route::prefix('cart')->name('cart.')->group(function () {
 Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout.show');
 Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
 Route::get('/checkout/payment', [CartController::class, 'payment'])->name('checkout.payment');
+Route::post('/checkout/payment', [CartController::class, 'processPayment'])->name('checkout.payment.process');
 Route::get('/checkout/confirmation', [CartController::class, 'confirmation'])->name('checkout.confirmation');
+
+Route::middleware('auth')->get('/orders/{order}/payment', [CartController::class, 'showOrderPayment'])->name('orders.payment');
 
 Route::middleware('auth')->prefix('wishlist')->name('wishlist.')->group(function () {
     Route::get('/', [WishlistController::class, 'index'])->name('index');
