@@ -172,6 +172,7 @@ class ProductController extends Controller
             'totalReviews', 
             'avgRating',
             'userHasReviewed',
+            'userCanReview',
             'filterRating',
             'specs'
         ));
