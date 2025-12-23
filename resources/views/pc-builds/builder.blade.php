@@ -304,7 +304,7 @@
                         <form method="GET" action="{{ route('pc-builds.builder') }}" class="space-y-6">
                             <!-- Budget Slider -->
                             <div>
-                                <label class="text-xs uppercase tracking-[0.4em] text-slate-400 mb-2 block">Budget Maksimal</label>
+                                <label class="text-xs uppercase tracking-[0.4em] text-slate-400 mb-2 block">Estimasi Budget</label>
                                 <div class="rounded-xl bg-white/5 p-4">
                                     <p class="text-2xl font-bold text-white mb-3" x-data="{ budget: {{ $budget }} }">
                                         Rp <span x-text="new Intl.NumberFormat('id-ID').format(budget)">{{ number_format($budget, 0, ',', '.') }}</span>
