@@ -94,6 +94,10 @@
                         <span class="material-symbols-outlined text-xl">memory</span>
                         Rakitan Tersimpan
                     </a>
+                    <a href="{{ route('account.addresses') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('account.addresses') ? 'bg-blue-50 text-primary font-medium border-l-4 border-primary' : 'text-gray-700 hover:bg-gray-50 border-l-4 border-transparent' }}">
+                        <span class="material-symbols-outlined text-xl">home</span>
+                        Alamat Saya
+                    </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="flex w-full items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 border-l-4 border-transparent">

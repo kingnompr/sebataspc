@@ -227,9 +227,9 @@
             <div class="bg-white rounded-lg border border-gray-200 p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-900">Alamat Utama</h3>
-                    <button class="text-gray-400 hover:text-gray-600">
+                    <a href="{{ route('account.addresses') }}" class="text-gray-400 hover:text-gray-600">
                         <span class="material-symbols-outlined">edit</span>
-                    </button>
+                    </a>
                 </div>
                 @if($defaultAddress)
                 <div class="flex items-start gap-3">
@@ -244,14 +244,14 @@
                         <p class="text-sm text-gray-500 mt-2">{{ $defaultAddress->phone }}</p>
                     </div>
                 </div>
-                <button class="mt-4 w-full px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <a href="{{ route('account.addresses') }}" class="mt-4 w-full px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 inline-block text-center">
                     + Tambah Alamat Baru
-                </button>
+                </a>
                 @else
                 <p class="text-sm text-gray-500 text-center py-4">Belum ada alamat tersimpan</p>
-                <button class="w-full px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+                <a href="{{ route('account.addresses') }}" class="w-full px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-blue-700 inline-block text-center">
                     Tambah Alamat
-                </button>
+                </a>
                 @endif
             </div>
         </div>
