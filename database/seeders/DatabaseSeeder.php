@@ -29,14 +29,16 @@ class DatabaseSeeder extends Seeder
             'name' => 'Administrator',
             'email' => 'admin@sebataspc.com',
             'role' => 'admin',
-            'password' => Hash::make('password'),
+            'is_admin' => true,
+            'password' => Hash::make('admin123'),
         ]);
 
         $customer = User::factory()->create([
             'name' => 'Jonathan Customer',
             'email' => 'customer@sebataspc.com',
             'role' => 'customer',
-            'password' => Hash::make('password'),
+            'is_admin' => false,
+            'password' => Hash::make('customer123'),
         ]);
 
         $categoriesData = [
