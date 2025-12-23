@@ -47,7 +47,6 @@
                     <a href="{{ route('home') }}" class="text-gray-600 hover:text-gray-900">Home</a>
                     <a href="{{ route('pc-builds.builder') }}" class="text-gray-600 hover:text-gray-900">Rakit PC</a>
                     <a href="{{ route('products.catalog') }}" class="text-gray-600 hover:text-gray-900">Produk</a>
-                    <a href="{{ route('home') }}#promo" class="text-gray-600 hover:text-gray-900">Promo</a>
                     <a href="{{ route('help.index') }}" class="text-primary font-semibold">Bantuan</a>
                 </nav>
                 <div class="flex items-center gap-3">
