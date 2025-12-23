@@ -21,6 +21,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS in production (Railway)
+        if (config('app.env') === 'production') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         // Share pending orders count with admin layout
         View::composer('admin.layout', function ($view) {
             if (auth()->check() && auth()->user()->is_admin) {
