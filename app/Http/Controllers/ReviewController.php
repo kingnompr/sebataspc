@@ -13,11 +13,17 @@ class ReviewController extends Controller
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:1000',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'image|mimes:jpeg,jpg,png,webp|max:5120', // max 5MB per image
         ], [
             'rating.required' => 'Rating wajib dipilih.',
             'rating.min' => 'Rating minimal 1 bintang.',
             'rating.max' => 'Rating maksimal 5 bintang.',
             'comment.max' => 'Ulasan maksimal 1000 karakter.',
+            'images.max' => 'Maksimal 5 foto dapat diupload.',
+            'images.*.image' => 'File harus berupa gambar.',
+            'images.*.mimes' => 'Format gambar harus jpeg, jpg, png, atau webp.',
+            'images.*.max' => 'Ukuran gambar maksimal 5MB.',
         ]);
 
         // Check if user already reviewed this product
@@ -37,11 +43,22 @@ class ReviewController extends Controller
             ->whereIn('status', ['paid', 'processing', 'qc', 'shipped', 'delivered'])
             ->exists();
 
+        // Handle image uploads
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $path = $image->storeAs('reviews', $filename, 'public');
+                $imagePaths[] = 'storage/' . $path;
+            }
+        }
+
         Review::create([
             'product_id' => $product->id,
             'user_id' => auth()->id(),
             'rating' => $validated['rating'],
             'comment' => $validated['comment'],
+            'images' => $imagePaths,
             'is_verified_purchase' => $hasPurchased,
         ]);
 

@@ -12,12 +12,18 @@ class Review extends Model
         'user_id',
         'rating',
         'comment',
+        'images',
         'is_verified_purchase',
+        'is_helpful',
+        'helpful_count',
     ];
 
     protected $casts = [
         'is_verified_purchase' => 'boolean',
+        'is_helpful' => 'boolean',
         'rating' => 'integer',
+        'helpful_count' => 'integer',
+        'images' => 'array',
     ];
 
     public function product(): BelongsTo

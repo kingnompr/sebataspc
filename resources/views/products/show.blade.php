@@ -304,7 +304,7 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('products.reviews.store', $product) }}" class="space-y-4">
+                                <form method="POST" action="{{ route('products.reviews.store', $product) }}" enctype="multipart/form-data" class="space-y-4">
                                     @csrf
                                     <div>
                                         <label class="block text-sm font-medium mb-2">Beri Rating</label>
@@ -320,6 +320,24 @@
                                     <div>
                                         <label class="block text-sm font-medium mb-2">Detail Ulasan (Opsional)</label>
                                         <textarea name="comment" rows="4" placeholder="Bagikan pengalaman Anda menggunakan produk ini..." class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">{{ old('comment') }}</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Tambahkan Foto (Opsional)</label>
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-center w-full">
+                                                <label for="review-images" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-2xl cursor-pointer bg-white/5 hover:bg-white/10 transition-colors">
+                                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                        <span class="material-symbols-outlined text-4xl text-slate-400 mb-2">add_photo_alternate</span>
+                                                        <p class="mb-1 text-sm text-slate-400"><span class="font-semibold">Klik untuk upload</span> atau drag & drop</p>
+                                                        <p class="text-xs text-slate-500">PNG, JPG, WEBP (Maks. 5MB per foto, maks. 5 foto)</p>
+                                                    </div>
+                                                    <input id="review-images" name="images[]" type="file" accept="image/jpeg,image/jpg,image/png,image/webp" multiple class="hidden" onchange="previewImages(event)" />
+                                                </label>
+                                            </div>
+                                            <div id="image-preview" class="grid grid-cols-3 gap-3 hidden">
+                                                <!-- Preview images will be inserted here -->
+                                            </div>
+                                        </div>
                                     </div>
                                     <button type="submit" class="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-blue-600 transition-colors">
                                         Kirim Ulasan
@@ -359,6 +377,19 @@
                                     </div>
                                     @if($review->comment)
                                         <p class="mt-3 text-sm text-slate-300 leading-relaxed">{{ $review->comment }}</p>
+                                    @endif
+                                    
+                                    @if($review->images && count($review->images) > 0)
+                                        <div class="mt-4 grid grid-cols-4 gap-2">
+                                            @foreach($review->images as $image)
+                                                <div class="relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-black/20 cursor-pointer group" onclick="openImageModal('{{ asset($image) }}')">
+                                                    <img src="{{ asset($image) }}" alt="Review photo" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110">
+                                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <span class="material-symbols-outlined text-white text-2xl">zoom_in</span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     @endif
                                 </div>
                             @empty
@@ -629,6 +660,71 @@
         const oldRating = document.getElementById('rating-input')?.value;
         if (oldRating) {
             setRating(parseInt(oldRating));
+        }
+
+        // Image preview functionality
+        function previewImages(event) {
+            const files = event.target.files;
+            const previewContainer = document.getElementById('image-preview');
+            
+            if (files.length > 0) {
+                previewContainer.classList.remove('hidden');
+                previewContainer.innerHTML = '';
+                
+                // Limit to 5 images
+                const maxFiles = Math.min(files.length, 5);
+                
+                for (let i = 0; i < maxFiles; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'relative aspect-square overflow-hidden rounded-lg border border-white/10';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview" class="h-full w-full object-cover">
+                            <button type="button" onclick="removePreview(this)" class="absolute top-1 right-1 rounded-full bg-red-500 p-1 text-white hover:bg-red-600">
+                                <span class="material-symbols-outlined text-sm">close</span>
+                            </button>
+                        `;
+                        previewContainer.appendChild(div);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+                
+                if (files.length > 5) {
+                    alert('Maksimal 5 foto. Foto pertama yang dipilih akan digunakan.');
+                }
+            }
+        }
+
+        function removePreview(button) {
+            const previewContainer = document.getElementById('image-preview');
+            button.parentElement.remove();
+            
+            if (previewContainer.children.length === 0) {
+                previewContainer.classList.add('hidden');
+                document.getElementById('review-images').value = '';
+            }
+        }
+
+        // Image modal functionality
+        function openImageModal(imageSrc) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4';
+            modal.onclick = function() { modal.remove(); };
+            
+            modal.innerHTML = `
+                <div class="relative max-w-5xl max-h-[90vh]">
+                    <button onclick="this.parentElement.parentElement.remove()" class="absolute -top-12 right-0 rounded-full bg-white/10 p-2 text-white hover:bg-white/20">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                    <img src="${imageSrc}" alt="Review photo" class="max-h-[85vh] w-auto rounded-2xl">
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
         }
     </script>
 </body>
