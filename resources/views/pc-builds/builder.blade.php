@@ -513,8 +513,8 @@
                     
                     // Format specifications
                     let specsHtml = '';
-                    if (product.specifications) {
-                        specsHtml = `<p class="text-xs text-slate-400 mt-2">${product.specifications}</p>`;
+                    if (product.specifications_formatted) {
+                        specsHtml = `<p class="text-xs text-slate-400 mt-2">${product.specifications_formatted}</p>`;
                     } else if (product.description) {
                         specsHtml = `<p class="text-xs text-slate-400 mt-2 line-clamp-2">${product.description}</p>`;
                     }
