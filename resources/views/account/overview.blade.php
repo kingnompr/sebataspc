@@ -254,42 +254,6 @@
                 </button>
                 @endif
             </div>
-
-            <!-- Saved Builds -->
-            <div class="bg-white rounded-lg border border-gray-200 p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Rakitan Tersimpan Terbaru</h3>
-                    <a href="#" class="text-sm font-medium text-primary hover:underline">Kelola Rakitan</a>
-                </div>
-                
-                @forelse($savedBuilds->take(2) as $saved)
-                @php
-                    $build = $saved->pcBuild;
-                    $components = $build ? $build->components : collect();
-                    $buildPrice = $components->sum(fn($c) => (optional($c->product)->price ?? 0) * $c->quantity);
-                @endphp
-                <div class="flex gap-3 mb-4 p-3 border border-gray-200 rounded-lg hover:border-primary transition-colors">
-                    <div class="size-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <img src="https://via.placeholder.com/64" alt="Build" class="w-12 h-12 object-contain">
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h4 class="font-semibold text-gray-900 truncate">{{ $saved->custom_name ?? $build->name ?? 'PC Build' }}</h4>
-                        <p class="text-xs text-gray-500">{{ $components->count() }} produk</p>
-                        <p class="text-sm font-semibold text-gray-900 mt-1">{{ $formatCurrency($buildPrice) }}</p>
-                    </div>
-                    <div class="flex flex-col items-end justify-between">
-                        <a href="#" class="text-primary hover:text-blue-700">
-                            <span class="material-symbols-outlined text-lg">edit</span>
-                        </a>
-                        <a href="#" class="px-3 py-1 bg-primary text-white text-xs font-medium rounded hover:bg-blue-700">
-                            Beli Sekarang
-                        </a>
-                    </div>
-                </div>
-                @empty
-                <p class="text-sm text-gray-500 text-center py-4">Belum ada rakitan tersimpan</p>
-                @endforelse
-            </div>
         </div>
     </div>
 @endsection
