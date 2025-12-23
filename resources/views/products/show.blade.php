@@ -119,7 +119,7 @@
                     return null;
                 }
                 $isAbsolute = str_starts_with($image, 'http://') || str_starts_with($image, 'https://');
-                return $isAbsolute ? $image : asset(ltrim($image, '/'));
+                return $isAbsolute ? $image : asset($image);
             })->filter()->values();
             $activeImage = $gallery->first();
 
@@ -519,7 +519,7 @@
                         @php
                             $image = $item->image;
                             $isAbsolute = $image && (str_starts_with($image, 'http://') || str_starts_with($image, 'https://'));
-                            $imageUrl = $image ? ($isAbsolute ? $image : asset(ltrim($image, '/'))) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
+                            $imageUrl = $image ? ($isAbsolute ? $image : asset($image)) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
                         @endphp
                         <article class="rounded-2xl border border-white/5 bg-[#0d1527] p-4 transition hover:border-primary/40">
                             <div class="relative overflow-hidden rounded-2xl">

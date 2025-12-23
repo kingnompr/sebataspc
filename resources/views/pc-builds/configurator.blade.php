@@ -176,7 +176,7 @@
                                     $product = $component->product;
                                     $image = $product?->image;
                                     $isAbsolute = $image && (str_starts_with($image, 'http://') || str_starts_with($image, 'https://'));
-                                    $imageUrl = $image ? ($isAbsolute ? $image : asset(ltrim($image, '/'))) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
+                                    $imageUrl = $image ? ($isAbsolute ? $image : asset($image)) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
                                     $alternatives = $componentAlternatives[$component->id] ?? collect();
                                 @endphp
                                 <article class="rounded-3xl border border-white/5 bg-card p-4 transition hover:border-primary/40">
@@ -219,7 +219,7 @@
                                                                 @php
                                                                     $altImage = $alternative->image;
                                                                     $altAbs = $altImage && (str_starts_with($altImage, 'http://') || str_starts_with($altImage, 'https://'));
-                                                                    $altImageUrl = $altImage ? ($altAbs ? $altImage : asset(ltrim($altImage, '/'))) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
+                                                                    $altImageUrl = $altImage ? ($altAbs ? $altImage : asset($altImage)) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
                                                                 @endphp
                                                                 <img src="{{ $altImageUrl }}" alt="{{ $alternative->name }}" class="h-full w-full object-cover">
                                                             </div>

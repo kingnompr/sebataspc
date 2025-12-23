@@ -229,7 +229,7 @@
                                     $product = $item->product;
                                     $image = $product->image ?? null;
                                     $isAbsolute = $image && (str_starts_with($image, 'http://') || str_starts_with($image, 'https://'));
-                                    $imageUrl = $image ? ($isAbsolute ? $image : asset(ltrim($image, '/'))) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
+                                    $imageUrl = $image ? ($isAbsolute ? $image : asset($image)) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
                                 @endphp
                                 <div class="flex gap-3 rounded-2xl border border-slate-100 p-3">
                                     <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="size-16 rounded-xl object-cover">

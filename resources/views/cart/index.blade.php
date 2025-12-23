@@ -114,7 +114,7 @@
                                     $lineTotal = $price * $item->quantity;
                                     $image = $product->image ?? null;
                                     $isAbsolute = $image && (str_starts_with($image, 'http://') || str_starts_with($image, 'https://'));
-                                    $imageUrl = $image ? ($isAbsolute ? $image : asset(ltrim($image, '/'))) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
+                                    $imageUrl = $image ? ($isAbsolute ? $image : asset($image)) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
                                     $badge = match (true) {
                                         $product && $product->stock <= 3 => ['Low Stock', 'text-amber-400 border-amber-400/40 bg-amber-400/10'],
                                         default => ['In Stock', 'text-emerald-400 border-emerald-400/40 bg-emerald-400/10'],
@@ -244,7 +244,7 @@
                             @php
                                 $image = $product->image ?? null;
                                 $isAbsolute = $image && (str_starts_with($image, 'http://') || str_starts_with($image, 'https://'));
-                                $imageUrl = $image ? ($isAbsolute ? $image : asset(ltrim($image, '/'))) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
+                                $imageUrl = $image ? ($isAbsolute ? $image : asset($image)) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
                             @endphp
                             <article class="rounded-2xl border border-white/5 bg-[#0f1529] p-4 transition hover:border-primary/40">
                                 <div class="overflow-hidden rounded-2xl">

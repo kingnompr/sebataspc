@@ -225,7 +225,7 @@
                                 @php
                                     $image = $product->image;
                                     $isAbsolute = $image && (str_starts_with($image, 'http://') || str_starts_with($image, 'https://'));
-                                    $imageUrl = $image ? ($isAbsolute ? $image : asset(ltrim($image, '/'))) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
+                                    $imageUrl = $image ? ($isAbsolute ? $image : asset($image)) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
                                 @endphp
                                 <article class="group flex gap-4 rounded-3xl border border-white/5 bg-[#0c1324] p-4 transition hover:border-primary/40 hover:shadow-glow">
                                     <div class="relative w-40 flex-shrink-0 overflow-hidden rounded-2xl bg-[#0a0f1f]">
@@ -290,7 +290,7 @@
                                 @php
                                     $image = $product->image;
                                     $isAbsolute = $image && (str_starts_with($image, 'http://') || str_starts_with($image, 'https://'));
-                                    $imageUrl = $image ? ($isAbsolute ? $image : asset(ltrim($image, '/'))) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
+                                    $imageUrl = $image ? ($isAbsolute ? $image : asset($image)) : 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80';
                                 @endphp
                                 <article class="group flex flex-col rounded-3xl border border-white/5 bg-[#0c1324] p-4 transition hover:border-primary/40 hover:shadow-glow">
                                     <div class="relative w-full overflow-hidden rounded-2xl bg-[#0a0f1f]">
