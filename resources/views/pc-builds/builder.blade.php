@@ -511,6 +511,14 @@
                         imageHtml = `<div class="w-20 h-20 rounded-xl bg-white/5 flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-slate-500">image</span></div>`;
                     }
                     
+                    // Format specifications
+                    let specsHtml = '';
+                    if (product.specifications) {
+                        specsHtml = `<p class="text-xs text-slate-400 mt-2">${product.specifications}</p>`;
+                    } else if (product.description) {
+                        specsHtml = `<p class="text-xs text-slate-400 mt-2 line-clamp-2">${product.description}</p>`;
+                    }
+                    
                     return `
                         <div class="p-4 rounded-2xl border border-white/10 bg-card hover:border-primary/40 hover:bg-card-hover transition-all cursor-pointer group"
                              onclick="selectProduct(${product.id}, '${product.name}', ${product.price})">
@@ -522,7 +530,7 @@
                                         <p class="text-lg font-bold text-primary">Rp ${priceFormatted}</p>
                                         ${rating}
                                     </div>
-                                    ${product.description ? `<p class="text-xs text-slate-400 mt-2 line-clamp-2">${product.description}</p>` : ''}
+                                    ${specsHtml}
                                 </div>
                                 <div class="opacity-0 group-hover:opacity-100 transition">
                                     <span class="material-symbols-outlined text-primary">arrow_forward</span>

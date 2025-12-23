@@ -173,22 +173,58 @@
                                         'tdp' => 'TDP',
                                         'wattage' => 'Watt',
                                         'efficiency_rating' => 'Rating Efisiensi',
+                                        'efficiency' => 'Efisiensi',
                                         'form_factor' => 'Form Factor',
                                         'length' => 'Panjang',
                                         'height' => 'Tinggi',
                                         'rgb_support' => 'RGB Support',
+                                        'rgb' => 'RGB',
                                         'type' => 'Tipe',
                                         'generation' => 'Generasi',
                                         'use_case' => 'Penggunaan',
                                         'tier' => 'Tier',
+                                        'cores' => 'Cores / Thread',
+                                        'base_clock' => 'Base Clock',
+                                        'boost_clock' => 'Boost Clock',
+                                        'igpu' => 'Integrated GPU',
+                                        'vram' => 'VRAM',
+                                        'power_draw' => 'TDP',
+                                        'max_memory' => 'Max Memory',
+                                        'pcie_slots' => 'PCIe Slots',
+                                        'speed' => 'Kecepatan',
+                                        'timing' => 'Timing',
+                                        'read_speed' => 'Read Speed',
+                                        'write_speed' => 'Write Speed',
+                                        'endurance' => 'Endurance (TBW)',
+                                        'modularity' => 'Modularity',
+                                        'fans_included' => 'Fans Included',
+                                        'max_gpu_length' => 'Max GPU Length',
+                                        'max_cpu_cooler_height' => 'Max CPU Cooler Height',
+                                        'radiator_size' => 'Radiator',
+                                        'noise_level' => 'Noise Level',
+                                        'compatibility' => 'Kompatibilitas',
+                                        'sequential_read' => 'Sequential Read',
+                                        'sequential_write' => 'Sequential Write',
+                                        'gpu_clearance' => 'GPU Clearance',
+                                        'cooling_support' => 'Cooling Support',
+                                        'front_io' => 'Front I/O',
+                                        'fans' => 'Fans',
+                                        'socket_support' => 'Socket Support',
                                         default => Str::of($key)->replace('_', ' ')->title()
                                     };
+                                    
+                                    // Skip internal fields
+                                    if (in_array($key, ['created_at', 'updated_at', 'id'])) {
+                                        continue;
+                                    }
                                     
                                     // Format value if it's an array or object
                                     if (is_array($value)) {
                                         $displayValue = implode(', ', $value);
                                     } elseif (is_bool($value)) {
                                         $displayValue = $value ? 'Ya' : 'Tidak';
+                                    } elseif (is_null($value)) {
+                                        $displayValue = '-';
                                     } else {
                                         $displayValue = $value;
                                     }

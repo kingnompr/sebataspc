@@ -583,6 +583,16 @@ class PcBuildController extends Controller
             ->limit(10)
             ->get()
             ->map(function ($product) {
+                // Format specifications as readable string
+                $specsString = '';
+                if ($product->specifications && is_array($product->specifications)) {
+                    $specs = [];
+                    foreach ($product->specifications as $key => $value) {
+                        $specs[] = ucfirst(str_replace('_', ' ', $key)) . ': ' . $value;
+                    }
+                    $specsString = implode(' • ', $specs);
+                }
+                
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
@@ -590,7 +600,7 @@ class PcBuildController extends Controller
                     'rating' => $product->rating,
                     'image' => $product->image,
                     'description' => $product->description,
-                    'specifications' => $product->specifications,
+                    'specifications' => $specsString, // Send formatted specifications
                 ];
             });
 
