@@ -1,23 +1,21 @@
-@extends('layouts.app')
+@extends('account.layout')
 
 @section('title', 'Rakitan Tersimpan')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Rakitan Tersimpan</h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
-                Build PC yang telah Anda simpan dari Smart PC Builder
-            </p>
-        </div>
+<!-- Header -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Rakitan Tersimpan</h1>
+    <p class="mt-2 text-gray-600 dark:text-gray-400">
+        Build PC yang telah Anda simpan dari Smart PC Builder
+    </p>
+</div>
 
-        @if(session('success'))
-            <div class="mb-6 p-4 bg-green-100 dark:bg-green-900/20 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-400 rounded-lg">
-                {{ session('success') }}
-            </div>
-        @endif
+@if(session('success'))
+    <div class="mb-6 p-4 bg-green-100 dark:bg-green-900/20 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-400 rounded-lg">
+        {{ session('success') }}
+    </div>
+@endif
 
         @if($builds->isEmpty())
             <!-- Empty State -->
@@ -124,10 +122,8 @@
             </div>
 
             <!-- Pagination -->
-            <div class="mt-8">
-                {{ $builds->links() }}
-            </div>
-        @endif
-    </div>
-</div>
+        <div class="mt-8">
+            {{ $builds->links() }}
+        </div>
+    @endif
 @endsection
