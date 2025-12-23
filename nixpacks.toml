@@ -1,15 +1,11 @@
 [phases.setup]
-
-nixPkgs = ['php82', 'php82Extensions.iconv', 'php82Extensions.mbstring']
+nixPkgs = ['php83', 'php83Packages.composer']
 
 [phases.install]
 cmds = ['composer install --no-dev --prefer-dist --optimize-autoloader']
 
 [phases.build]
-cmds = ['php artisan config:clear', 'php artisan cache:clear']
+cmds = ['php artisan config:clear', 'php artisan cache:clear', 'php artisan view:cache']
 
 [start]
 cmd = 'php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=$PORT'
-
-[variables]
-    PHP_VERSION = '8.2'
