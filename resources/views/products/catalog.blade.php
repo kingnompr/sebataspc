@@ -190,11 +190,11 @@
 
                         <div>
                             <p class="text-xs uppercase tracking-[0.4em] text-slate-500">Urutkan</p>
-                            <select name="sort" class="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
-                                <option value="relevance" @selected($sort === 'relevance')>Paling relevan</option>
-                                <option value="latest" @selected($sort === 'latest')>Terbaru</option>
-                                <option value="price-asc" @selected($sort === 'price-asc')>Harga terendah</option>
-                                <option value="price-desc" @selected($sort === 'price-desc')>Harga tertinggi</option>
+                            <select name="sort" class="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" style="color: white;">
+                                <option value="relevance" @selected($sort === 'relevance') style="background-color: #1a1a1a; color: white;">Paling relevan</option>
+                                <option value="latest" @selected($sort === 'latest') style="background-color: #1a1a1a; color: white;">Terbaru</option>
+                                <option value="price-asc" @selected($sort === 'price-asc') style="background-color: #1a1a1a; color: white;">Harga terendah</option>
+                                <option value="price-desc" @selected($sort === 'price-desc') style="background-color: #1a1a1a; color: white;">Harga tertinggi</option>
                             </select>
                         </div>
 
