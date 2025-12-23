@@ -25,6 +25,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Skip if data already exists
+        if (User::where('email', 'admin@sebataspc.com')->exists()) {
+            $this->command->info('Database already seeded. Skipping...');
+            return;
+        }
+
         $admin = User::factory()->create([
             'name' => 'Administrator',
             'email' => 'admin@sebataspc.com',
