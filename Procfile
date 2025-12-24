@@ -1,1 +1,1 @@
-web: php artisan storage:link && php artisan migrate --force && php artisan db:seed --force --class=DatabaseSeeder && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=$PORT
+web: php artisan storage:link && php artisan migrate --force && php artisan db:seed --force --class=DatabaseSeeder && php artisan products:update-images && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=$PORT
