@@ -17,56 +17,35 @@ use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $featuredProduct = Product::with('category')->featured()->first();
-    
-    // Get featured products with images - prioritize main components
-    $featuredProducts = collect();
-    
-    // Get processors with images (4 items)
-    $processors = Product::with('category')
-        ->where('category_id', 1)
+    // Get all featured products in a single optimized query
+    $allProducts = Product::with('category')
         ->whereNotNull('image')
         ->where('image', '!=', '')
         ->where('stock', '>', 0)
-        ->inRandomOrder()
-        ->take(4)
         ->get();
-    $featuredProducts = $featuredProducts->merge($processors);
     
-    // Get GPUs with images (3 items)
-    $gpus = Product::with('category')
-        ->where('category_id', 2)
-        ->whereNotNull('image')
-        ->where('image', '!=', '')
-        ->where('stock', '>', 0)
-        ->inRandomOrder()
-        ->take(3)
-        ->get();
-    $featuredProducts = $featuredProducts->merge($gpus);
+    // Separate and prioritize by category
+    $processors = $allProducts->where('category_id', 1)->take(4);
+    $gpus = $allProducts->where('category_id', 2)->take(3);
+    $storage = $allProducts->where('category_id', 5)->take(3);
     
-    // Get Storage with images (3 items)
-    $storage = Product::with('category')
-        ->where('category_id', 5)
-        ->whereNotNull('image')
-        ->where('image', '!=', '')
-        ->where('stock', '>', 0)
-        ->inRandomOrder()
-        ->take(3)
-        ->get();
-    $featuredProducts = $featuredProducts->merge($storage);
+    // Build featured products collection
+    $featuredProducts = collect()
+        ->merge($processors)
+        ->merge($gpus)
+        ->merge($storage);
     
     // Fill remaining with other products if needed
     if ($featuredProducts->count() < 12) {
-        $remaining = Product::with('category')
-            ->whereNotNull('image')
-            ->where('image', '!=', '')
-            ->where('stock', '>', 0)
-            ->whereNotIn('id', $featuredProducts->pluck('id'))
-            ->inRandomOrder()
-            ->take(12 - $featuredProducts->count())
-            ->get();
+        $usedIds = $featuredProducts->pluck('id');
+        $remaining = $allProducts
+            ->whereNotIn('id', $usedIds)
+            ->take(12 - $featuredProducts->count());
         $featuredProducts = $featuredProducts->merge($remaining);
     }
+    
+    // Get featured product (first one from collection)
+    $featuredProduct = $featuredProducts->first();
 
     return view('welcome', compact('featuredProduct', 'featuredProducts'));
 })->name('home');
