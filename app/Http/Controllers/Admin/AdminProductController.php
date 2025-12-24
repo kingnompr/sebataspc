@@ -133,10 +133,16 @@ class AdminProductController extends Controller
             $validated['min_stock_alert'] = 5;
         }
         
-        Product::create($validated);
-        
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Produk berhasil ditambahkan!');
+        try {
+            $product = Product::create($validated);
+            
+            return redirect()->route('admin.products.index')
+                ->with('success', 'Produk berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal menyimpan produk: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -224,10 +230,16 @@ class AdminProductController extends Controller
             $validated['compatible_sockets'] = json_encode($validated['compatible_sockets']);
         }
         
-        $product->update($validated);
-        
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Produk berhasil diupdate!');
+        try {
+            $product->update($validated);
+            
+            return redirect()->route('admin.products.index')
+                ->with('success', 'Produk berhasil diupdate!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal mengupdate produk: ' . $e->getMessage());
+        }
     }
 
     /**
