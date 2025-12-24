@@ -114,10 +114,18 @@ class AdminProductController extends Controller
         // Generate slug from name
         $validated['slug'] = Str::slug($validated['name']);
         
-        // Handle image upload
+        // Handle image upload - skip if file upload fails
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
-            $validated['image'] = 'storage/' . $imagePath;
+            try {
+                $imagePath = $request->file('image')->store('products', 'public');
+                $validated['image'] = 'storage/' . $imagePath;
+            } catch (\Exception $e) {
+                // File upload failed, set default image
+                $validated['image'] = 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=500&fit=crop';
+            }
+        } else {
+            // No file provided, set default image
+            $validated['image'] = 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=500&fit=crop';
         }
         
         // Convert arrays to JSON
@@ -209,15 +217,20 @@ class AdminProductController extends Controller
             $validated['slug'] = Str::slug($validated['name']);
         }
         
-        // Handle image upload
+        // Handle image upload - skip if file upload fails
         if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($product->image && Storage::disk('public')->exists(str_replace('storage/', '', $product->image))) {
-                Storage::disk('public')->delete(str_replace('storage/', '', $product->image));
+            try {
+                // Delete old image if exists
+                if ($product->image && strpos($product->image, 'storage/') === 0) {
+                    Storage::disk('public')->delete(str_replace('storage/', '', $product->image));
+                }
+                
+                $imagePath = $request->file('image')->store('products', 'public');
+                $validated['image'] = 'storage/' . $imagePath;
+            } catch (\Exception $e) {
+                // File upload failed, keep existing image
+                unset($validated['image']);
             }
-            
-            $imagePath = $request->file('image')->store('products', 'public');
-            $validated['image'] = 'storage/' . $imagePath;
         }
         
         // Convert arrays to JSON
