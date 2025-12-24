@@ -12,6 +12,14 @@ class AddProductImagesSeeder extends Seeder
      */
     public function run(): void
     {
+        // Skip if images already exist (already seeded)
+        $productsWithoutImages = Product::whereNull('image')->orWhere('image', '')->count();
+        
+        if ($productsWithoutImages === 0) {
+            $this->command->info('Product images already exist. Skipping...');
+            return;
+        }
+
         // Update all products with external Unsplash images
         $categoryImages = [
             'cpu' => [
