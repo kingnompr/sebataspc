@@ -90,7 +90,7 @@ class AdminProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'min_stock_alert' => 'nullable|integer|min:0',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|string|max:500',
             
             // Compatibility fields
             'socket' => 'nullable|string|max:100',
@@ -114,17 +114,9 @@ class AdminProductController extends Controller
         // Generate slug from name
         $validated['slug'] = Str::slug($validated['name']);
         
-        // Handle image upload - skip if file upload fails
-        if ($request->hasFile('image')) {
-            try {
-                $imagePath = $request->file('image')->store('products', 'public');
-                $validated['image'] = 'storage/' . $imagePath;
-            } catch (\Exception $e) {
-                // File upload failed, set default image
-                $validated['image'] = 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=500&fit=crop';
-            }
-        } else {
-            // No file provided, set default image
+        // Don't store images locally on Railway (ephemeral filesystem)
+        // Use external Unsplash URLs instead
+        if (!isset($validated['image']) || empty($validated['image'])) {
             $validated['image'] = 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=500&fit=crop';
         }
         
@@ -191,7 +183,7 @@ class AdminProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'min_stock_alert' => 'nullable|integer|min:0',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|string|max:500',
             
             // Compatibility fields
             'socket' => 'nullable|string|max:100',
@@ -217,20 +209,11 @@ class AdminProductController extends Controller
             $validated['slug'] = Str::slug($validated['name']);
         }
         
-        // Handle image upload - skip if file upload fails
-        if ($request->hasFile('image')) {
-            try {
-                // Delete old image if exists
-                if ($product->image && strpos($product->image, 'storage/') === 0) {
-                    Storage::disk('public')->delete(str_replace('storage/', '', $product->image));
-                }
-                
-                $imagePath = $request->file('image')->store('products', 'public');
-                $validated['image'] = 'storage/' . $imagePath;
-            } catch (\Exception $e) {
-                // File upload failed, keep existing image
-                unset($validated['image']);
-            }
+        // Don't store images locally on Railway (ephemeral filesystem)
+        // Use external Unsplash URLs instead
+        if (!isset($validated['image']) || empty($validated['image'])) {
+            // Keep existing image if no new one provided
+            unset($validated['image']);
         }
         
         // Convert arrays to JSON
