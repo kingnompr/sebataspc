@@ -338,7 +338,7 @@ updateSlider();
 @endauth
 </div>
 <a href="{{ route('products.show', $product->slug) }}" class="block w-full h-full">
-    <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" />
+    <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" loading="eager" />
 </a>
 </div>
 <div class="p-4">
