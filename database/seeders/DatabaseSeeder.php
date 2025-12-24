@@ -73,7 +73,7 @@ class DatabaseSeeder extends Seeder
             PsuProductsSeeder::class,
             CasingProductsSeeder::class,
             CpuCoolerProductsSeeder::class,
-            // Skip AddProductImagesSeeder - images will be set by UpdateProductImages command
+            AddProductImagesSeeder::class, // Add external Unsplash images
         ]);
 
         // Get all products for PC builds and orders
