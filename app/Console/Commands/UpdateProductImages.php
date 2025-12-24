@@ -71,10 +71,9 @@ class UpdateProductImages extends Command
             $images = $categoryImages[$category] ?? $defaultImages;
             $imageUrl = $images[($counter - 1) % count($images)];
             
-            if (!$product->image || strpos($product->image, 'placehold') !== false) {
-                $product->update(['image' => $imageUrl]);
-                $updated++;
-            }
+            // Always update to ensure external URLs
+            $product->update(['image' => $imageUrl]);
+            $updated++;
             $counter++;
         }
 
