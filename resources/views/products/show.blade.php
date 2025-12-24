@@ -123,6 +123,7 @@
             })->filter()->values();
             $activeImage = $gallery->first();
 
+            // Ensure specifications is parsed properly (accessor guarantees array)
             $specs = collect($product->specifications ?? []);
             $specHighlights = $specs->take(4);
         @endphp

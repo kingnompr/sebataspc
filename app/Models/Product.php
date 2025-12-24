@@ -65,7 +65,6 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'specifications' => 'array',
         'price' => 'decimal:2',
         'rating' => 'decimal:2',
         'is_featured' => 'boolean',
@@ -77,6 +76,38 @@ class Product extends Model
         'markup_percentage' => 'decimal:2',
         'last_restock_date' => 'date',
     ];
+
+    /**
+     * Get the specifications, ensuring they're always an array.
+     */
+    public function getSpecificationsAttribute($value)
+    {
+        // Handle null or empty
+        if (is_null($value) || (is_string($value) && empty(trim($value)))) {
+            return [];
+        }
+        
+        // If already an array, return it
+        if (is_array($value)) {
+            return $value;
+        }
+        
+        // Handle JSON string - may need double decoding for escaped JSON
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            
+            // If first decode returned a string, try decoding again
+            if (is_string($decoded)) {
+                $decoded = json_decode($decoded, true);
+            }
+            
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $decoded;
+            }
+        }
+        
+        return [];
+    }
 
     /**
      * Get the category that owns the product.

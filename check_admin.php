@@ -4,7 +4,7 @@ $app = require_once __DIR__.'/bootstrap/app.php';
 $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
 // Cek apakah ada user admin
-$admin = App\Models\User::where('is_admin', true)->first();
+$admin = App\Models\User::where('email', 'admin@sebataspc.com')->first();
 
 echo "=== CEK USER ADMIN ===\n\n";
 
@@ -12,6 +12,10 @@ if ($admin) {
     echo " Admin user exists:\n";
     echo "   Name: {$admin->name}\n";
     echo "   Email: {$admin->email}\n";
+    if (!$admin->is_admin) {
+        $admin->update(['is_admin' => true]);
+        echo "   Updated is_admin to true\n";
+    }
 } else {
     echo " No admin user found!\n";
     echo "Creating admin user...\n\n";
