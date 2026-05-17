@@ -41,7 +41,7 @@ Pengguna dapat menentukan rentang harga (*budget*) menggunakan *slider*. Sistem 
 
 ---
 
-## Teknologi yang Digunakan
+## Tools yang Digunakan
 
 - **Backend:** Laravel (PHP)
 - **Frontend:** Laravel Blade, HTML5, CSS/Tailwind/Bootstrap, JavaScript
@@ -78,6 +78,12 @@ Ikuti langkah-langkah berikut untuk menjalankan project Laravel ini di komputer 
    ```bash
    git clone https://github.com/username-anda/sebatas-pc.git
    cd sebatas-pc
+2. cp .env.example .env
+3. composer install
+4. php artisan key:generate
+5. php artisan migrate (atau php artisan migrate --seed untuk dummy data)
+6. npm install && npm run dev
+7. php artisan serve
 
 ## 🔑 Environment Variables
 Pastikan Anda mengatur file `.env` dengan konfigurasi database yang sesuai:
