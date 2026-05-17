@@ -41,7 +41,7 @@ Pengguna dapat menentukan rentang harga (*budget*) menggunakan *slider*. Sistem 
 
 ---
 
-## Tools yang Digunakan
+## 🛠️ Tools yang Digunakan
 
 - **Backend:** Laravel (PHP)
 - **Frontend:** Laravel Blade, HTML5, CSS/Tailwind/Bootstrap, JavaScript
@@ -51,7 +51,7 @@ Pengguna dapat menentukan rentang harga (*budget*) menggunakan *slider*. Sistem 
 
 ---
 
-## Struktur Database Utama
+## 📊 Struktur Database Utama
 
 Aplikasi ini menggunakan 5 tabel utama yang saling berelasi:
 1. `users`: Menyimpan kredensial pengguna (Admin/Pelanggan).
@@ -62,7 +62,7 @@ Aplikasi ini menggunakan 5 tabel utama yang saling berelasi:
 
 ---
 
-## Cara Instalasi & Menjalankan di Lokal (Local Setup)
+## 🚀 Cara Instalasi & Menjalankan di Lokal (Local Setup)
 
 Ikuti langkah-langkah berikut untuk menjalankan project Laravel ini di komputer Anda:
 
