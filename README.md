@@ -7,53 +7,88 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+# 💻 SEBATAS PC - E-Commerce Komponen Komputer
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+![Project Version](https://img.shields.io/badge/version-1.0-blue)
+![Framework](https://img.shields.io/badge/Framework-Laravel-FF2D20?logo=laravel&logoColor=white)
+![Deployment](https://img.shields.io/badge/Deployment-Railway-131415?logo=railway&logoColor=white)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**SEBATAS PC** adalah aplikasi e-commerce berbasis web yang berfokus pada penjualan komponen komputer. Sistem ini dirancang untuk memudahkan pengguna dalam berbelanja komponen PC dengan fitur unggulan **Smart PC Builder**, di mana pelanggan dapat merakit PC sesuai anggaran (*budget*) mereka secara otomatis dengan jaminan kompatibilitas komponen (seperti kecocokan *socket*).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 📌 Fitur Utama
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Smart PC Builder (Fitur Unggulan)
+Pengguna dapat menentukan rentang harga (*budget*) menggunakan *slider*. Sistem akan secara otomatis merekomendasikan kombinasi rakitan PC yang kompatibel satu sama lain dan sesuai dengan anggaran dalam waktu kurang dari 2 detik.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### E-Commerce Core
+- **Katalog Produk:** Menampilkan daftar komponen (Processor, VGA, RAM, Storage, dll) dengan foto, harga, dan spesifikasi.
+- **Pencarian & Filter:** Mencari produk spesifik berdasarkan nama atau filter kategori (misal: Intel / AMD).
+- **Manajemen Keranjang (Cart):** Menambahkan, mengubah jumlah, dan menghapus produk sebelum *checkout*.
+- **Pembayaran & Transaksi:** Finalisasi belanja dan mencetak Invoice/Nota.
 
-## Laravel Sponsors
+### Autentikasi & Keamanan
+- Login dan Registrasi akun.
+- Pembagian hak akses (*Role-Based Access Control*) untuk Admin dan Pelanggan.
+- Enkripsi password menggunakan sistem *Bcrypt* bawaan Laravel.
+- Proteksi terhadap *SQL Injection* menggunakan *Eloquent ORM* dan *Prepared Statements*.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Admin Dashboard
+- **Manajemen Produk (CRUD):** Tambah, lihat, ubah harga/stok, dan hapus data komponen.
+- **Manajemen Kategori:** Mengatur kategori komponen agar katalog tertata rapi.
+- **Laporan Transaksi:** Memantau pesanan yang masuk dari pelanggan.
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Teknologi yang Digunakan
 
-## Contributing
+- **Backend:** Laravel (PHP)
+- **Frontend:** Laravel Blade, HTML5, CSS/Tailwind/Bootstrap, JavaScript
+- **Database:** MySQL / PostgreSQL
+- **Deployment:** Railway (Cloud Hosting)
+- **Arsitektur:** MVC (Model-View-Controller)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Struktur Database Utama
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Aplikasi ini menggunakan 5 tabel utama yang saling berelasi:
+1. `users`: Menyimpan kredensial pengguna (Admin/Pelanggan).
+2. `products`: Informasi komponen, termasuk `socket_type` untuk validasi *Smart PC Builder*.
+3. `categories`: Pengelompokan jenis komponen PC.
+4. `orders`: Mencatat data transaksi (*one-to-many* ke Order_Details).
+5. `order_details`: Menyimpan daftar item spesifik dalam satu kali transaksi.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Cara Instalasi & Menjalankan di Lokal (Local Setup)
 
-## License
+Ikuti langkah-langkah berikut untuk menjalankan project Laravel ini di komputer Anda:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Prasyarat
+- PHP >= 8.1
+- Composer
+- Node.js & NPM
+- MySQL / MariaDB (XAMPP/Laragon)
+- Git
+
+### Langkah-langkah
+1. **Clone repository ini**
+   ```bash
+   git clone https://github.com/username-anda/sebatas-pc.git
+   cd sebatas-pc
+
+## 🔑 Environment Variables
+Pastikan Anda mengatur file `.env` dengan konfigurasi database yang sesuai:
+- `DB_CONNECTION=mysql`
+- `DB_HOST=127.0.0.1`
+- `DB_PORT=3306`
+- `DB_DATABASE=sebatas_pc`
+
+## 👥 Tim Pengembang
+- Nomensen Melkisedek Pardosi (103062330101)
+- Muhammad Farid Irham (103062300040)
+- Azka Dhaffinanda Rahman (103062300106)
+- Adha Rahmadani Putra (103062300073)
+- Hasan Naqib Sa’bani (103062300072)
